@@ -1,0 +1,12 @@
+{
+  "name": "bitcoinBot",
+  "displayName": "bitcoinBot",
+  "expo": {
+    "name": "bitcoinBot",
+    "slug": "bitcoinBot",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
