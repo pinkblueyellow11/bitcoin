@@ -1,6 +1,7 @@
 package com.bitcoinbot;
 
 import android.app.Application;
+import androidx.multidex.MultiDexApplication;
 import android.content.Context;
 import android.net.Uri;
 
@@ -24,14 +25,14 @@ import expo.modules.filesystem.FileSystemPackage;
 import expo.modules.updates.UpdatesController;
 
 import com.facebook.react.bridge.JSIModulePackage;
-import com.swmansion.reanimated.ReanimatedJSIModulePackage;
+//import com.swmansion.reanimated.ReanimatedJSIModulePackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class MainApplication extends Application implements ReactApplication {
+public class MainApplication extends MultiDexApplication implements ReactApplication {
   private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(
     new BasePackageList().getPackageList()
   );
@@ -54,10 +55,10 @@ public class MainApplication extends Application implements ReactApplication {
       return "index";
     }
 
-    @Override
-    protected JSIModulePackage getJSIModulePackage() {
-      return new ReanimatedJSIModulePackage();
-    }
+    // @Override
+    // protected JSIModulePackage getJSIModulePackage() {
+    //   return new ReanimatedJSIModulePackage();
+    // }
 
     @Override
     protected @Nullable String getJSBundleFile() {
