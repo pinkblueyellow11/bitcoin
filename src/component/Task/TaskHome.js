@@ -84,15 +84,15 @@ function TaskHome(props) {
         <Spacer size={24} flex={0} />
         <View style={{ backgroundColor: Colors.grayBgColor, flexDirection: 'row' }}>
           <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>
-            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>貢進時間</Text>
+            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>買進時間</Text>
             <MaterialCommunityIcons name="menu-down-outline" size={18} color={Colors.mainBgColor} />
           </Pressable>
           <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>
-            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>貢進數量</Text>
+            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>買進數量</Text>
             <MaterialCommunityIcons name="menu-down-outline" size={18} color={Colors.mainBgColor} />
           </Pressable>
           <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>
-            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>貢進收益</Text>
+            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>買進收益</Text>
             <MaterialCommunityIcons name="menu-down-outline" size={18} color={Colors.mainBgColor} />
           </Pressable>
           <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>

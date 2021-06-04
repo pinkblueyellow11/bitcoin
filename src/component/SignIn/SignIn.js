@@ -82,7 +82,6 @@ export default function SignIn(props) {
     } else {
       registerVerify()
     }
-    //navigation.navigate(screenName.VerifyPhone)
   }
 
   const registerVerify = async () => {
@@ -91,7 +90,6 @@ export default function SignIn(props) {
     }
 
     if (isPhoneAccount) body.account_prefix = selectedValue
-    console.log('body', body)
     const result = await sendEmail(body)
     if (!result.message) {
       setErrorMsg(null)

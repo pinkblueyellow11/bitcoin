@@ -23,15 +23,13 @@ export default function LoginContainer(props) {
     setIsWaiting(true)
     try {
       const result = await agent.Auth.logIn(body)
-      console.log('result', result)
-      console.log('resresult.data', result.data.token)
       setIsWaiting(false)
       setToken(result.data.token)
       setrefreshToken(result.data.refresh_token)
       setAxiosTokens(result.data.token)
       return result
     } catch (error) {
-      console.log('error', error)
+      console.log('[container/MyAccount] logIn error', error)
       setErrorMsg(ERROR_STATUS[error.status])
       setIsWaiting(false)
       return error
@@ -42,12 +40,12 @@ export default function LoginContainer(props) {
     setIsWaiting(true)
     try {
       const result = await agent.Account.getUser()
-      console.log('user result', result)
       setIsWaiting(false)
       setUserInfo(result.data)
       return result
     } catch (error) {
       console.log('error', error)
+      console.log('[container/MyAccount] getUser error', error)
       setErrorMsg(ERROR_STATUS[error.status])
       setIsWaiting(false)
       return error

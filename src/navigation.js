@@ -7,7 +7,6 @@ import Colors from '../native-base-theme/variables/commonColor'
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { connect, useSelector, useDispatch } from 'react-redux'
 // Page
-import Login from './container/Login/Login'
 import SignIn from './container/SignIn/SignIn'
 import VerifyPhone from './container/SignIn/VerifyPhone'
 import Home from './container/Home/Home'
@@ -109,10 +108,6 @@ export default function Navigation() {
           component={VerifyPhone}
           options={{ headerShown: false }}
         />
-        {/* <Stack.Screen name={screentName.login} component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name={screentName.SignIn} component={SignIn} options={{ headerShown: false }} />
-        <Stack.Screen name={'TabHome'} component={TabHome} options={{ headerShown: false }} /> */}
-
         <Stack.Screen
           name={screentName.styleguideHome}
           component={StyleguideHome}

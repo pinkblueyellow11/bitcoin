@@ -56,7 +56,7 @@ function Assets(props) {
             <Text style={[componentProps.fontBodySmall3, { color: Colors.grayText3, alignSelf: 'center' }]}>
               帳戶總資產
             </Text>
-            <Text style={[componentProps.fontH1, { color: Colors.redText, alignSelf: 'center' }]}>100</Text>
+            <Text style={[componentProps.fontH1, { color: Colors.redText, alignSelf: 'center' }]}>0</Text>
           </View>
           <Spacer size={24} flex={0} />
           <View style={styles.boxButtonView}>

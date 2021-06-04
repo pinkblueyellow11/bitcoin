@@ -46,8 +46,6 @@ export default function VerifyPhone(props) {
     setValue,
   })
 
-  console.log('isPhoneAccount', isPhoneAccount)
-
   const handleRegister = async () => {
     if (!value) return
     const body = {
@@ -58,16 +56,14 @@ export default function VerifyPhone(props) {
     }
 
     if (isPhoneAccount) body.account_prefix = selectedValue
-    console.log('body', body)
     const result = await register(body)
-    console.log('result', result)
     if (!result.message) {
       setErrorMsg(null)
       Alert.alert('註冊成功', '', [
         {
           text: '確定',
           onPress: () => {
-            navigation.navigate(screenName.Login)
+            navigation.navigate(screenName.MyAccount)
           },
         },
       ])

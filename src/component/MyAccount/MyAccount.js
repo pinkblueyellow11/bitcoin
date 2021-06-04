@@ -77,7 +77,6 @@ function MyAccount(props) {
         account: accountValue,
         password: passwordValue,
       }
-      console.log('data', data)
       await AsyncStorage.setItem(config.ASYNC_STORAGE.LOGIN_INFO, JSON.stringify(data))
     } catch (error) {
       console.log('[components/MyAccount] Set store error', error)
@@ -91,8 +90,6 @@ function MyAccount(props) {
     }
     if (isPhoneAccount) body.account_prefix = selectedValue
     const result = await logIn(body)
-    console.log('body', body)
-    console.log('result', result)
     if (!result.message) {
       setErrorMsg(null)
       storeLogin()
@@ -112,6 +109,7 @@ function MyAccount(props) {
 
   useEffect(() => {
     if (errorMsg !== null) {
+      console.log('errorMsg', errorMsg)
       Alert.alert('錯誤訊息', errorMsg, [
         {
           text: '確定',
@@ -127,15 +125,13 @@ function MyAccount(props) {
       try {
         const result = await AsyncStorage.getItem(config.ASYNC_STORAGE.LOGIN_INFO)
         const parsedResult = result ? JSON.parse(result) : {}
-        if (result && parsedResult.account !== '' && parsedResult.password !== '') {
+        if (result && !parsedResult.account && !parsedResult.password) {
           const body = {
             account: parsedResult.email,
             password: parsedResult.password,
           }
           if (parsedResult.isPhoneAccount) body.account_prefix = parsedResult.account_prefix
           const result = await logIn(body)
-          console.log('getItem body', body)
-          console.log('result', result)
           if (result.data !== null) {
             //setErrorMsg(null)
             navigation.navigate(screenName.Home)
@@ -146,10 +142,6 @@ function MyAccount(props) {
       }
     })()
   }, [])
-
-  useEffect(() => {
-    console.log('userInfo', userInfo)
-  }, [userInfo])
 
   return (
     <Container style={{}}>
