@@ -10,56 +10,18 @@ export default function LoginContainer(props) {
   const [errorMsg, setErrorMsg] = useState(null)
   const [userInfo, setUserInfo] = useState(null)
   // redux
-  const token = useSelector((state) => state.register.token)
+  const account = useSelector((state) => state.auth.account)
+  const recommend_code = useSelector((state) => state.auth.recommend_code)
   const dispatch = useDispatch()
-  const setToken = (token) => dispatch.register.setToken(token)
-  const setrefreshToken = (token) => dispatch.register.setRefreshToken(token)
 
   const logOut = () => {
     dispatch.register.setToken(null)
   }
 
-  const logIn = async (body) => {
-    setIsWaiting(true)
-    try {
-      const result = await agent.Auth.logIn(body)
-      setIsWaiting(false)
-      setToken(result.data.token)
-      setrefreshToken(result.data.refresh_token)
-      setAxiosTokens(result.data.token)
-      return result
-    } catch (error) {
-      console.log('[container/MyAccount] logIn error', error)
-      setErrorMsg(ERROR_STATUS[error.status])
-      setIsWaiting(false)
-      return error
-    }
-  }
-
-  const getUser = async () => {
-    setIsWaiting(true)
-    try {
-      const result = await agent.Account.getUser()
-      setIsWaiting(false)
-      setUserInfo(result.data)
-      return result
-    } catch (error) {
-      console.log('error', error)
-      console.log('[container/MyAccount] getUser error', error)
-      setErrorMsg(ERROR_STATUS[error.status])
-      setIsWaiting(false)
-      return error
-    }
-  }
-
-  useEffect(() => {
-    if (token) getUser()
-  }, [token])
-
   return (
     <MyAccount
-      token={token}
-      logIn={logIn}
+      account={account}
+      recommend_code={recommend_code}
       logOut={logOut}
       userInfo={userInfo}
       isWaiting={isWaiting}

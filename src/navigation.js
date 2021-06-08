@@ -7,12 +7,21 @@ import Colors from '../native-base-theme/variables/commonColor'
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { connect, useSelector, useDispatch } from 'react-redux'
 // Page
+import Login from './container/Login/Login'
 import SignIn from './container/SignIn/SignIn'
 import VerifyPhone from './container/SignIn/VerifyPhone'
 import Home from './container/Home/Home'
 import MyAccount from './container/MyAccount/MyAccount'
 import TaskHome from './container/Task/TaskHome'
+import NewTask from './container/Task/NewTask'
+import TaskDetail from './container/Task/TaskDetail'
+import ChooseCoinType from './container/Task/ChooseCoinType'
+import TaskRecord from './container/Task/TaskRecord'
 import Assets from './container/Assets/Assets'
+import Notification from './container/Notification/Notification'
+import Invite from './container/Home/Invite'
+import Community from './container/Home/Community'
+import ApiScreen from './container/Home/ApiScreen'
 
 // Guidestyle
 import StyleguideHome from './component/Styleguide/Home'
@@ -24,6 +33,14 @@ import StyleguideToast from './component/Styleguide/Toast'
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
 export default function Navigation() {
+  // redux
+  const token = useSelector((state) => state.register.token)
+  const [isLogIn, setIsLogIn] = useState(false)
+
+  useEffect(() => {
+    setIsLogIn(token === null || token === undefined)
+  }, [token])
+
   function TabHome() {
     return (
       <Tab.Navigator
@@ -101,13 +118,58 @@ export default function Navigation() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name={'TabHome'} component={TabHome} options={{ headerShown: false }} />
-        <Stack.Screen name={screentName.SignIn} component={SignIn} options={{ headerShown: false }} />
-        <Stack.Screen
-          name={screentName.VerifyPhone}
-          component={VerifyPhone}
-          options={{ headerShown: false }}
-        />
+        {isLogIn ? (
+          <>
+            <Stack.Screen name={screentName.Login} component={Login} options={{ headerShown: false }} />
+            <Stack.Screen name={screentName.SignIn} component={SignIn} options={{ headerShown: false }} />
+            <Stack.Screen
+              name={screentName.VerifyPhone}
+              component={VerifyPhone}
+              options={{ headerShown: false }}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name={'TabHome'} component={TabHome} options={{ headerShown: false }} />
+            <Stack.Screen
+              name={screentName.VerifyPhone}
+              component={VerifyPhone}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={screentName.Notification}
+              component={Notification}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name={screentName.Invite} component={Invite} options={{ headerShown: false }} />
+            <Stack.Screen
+              name={screentName.Community}
+              component={Community}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={screentName.ApiScreen}
+              component={ApiScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name={screentName.NewTask} component={NewTask} options={{ headerShown: false }} />
+            <Stack.Screen
+              name={screentName.ChooseCoinType}
+              component={ChooseCoinType}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={screentName.TaskDetail}
+              component={TaskDetail}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={screentName.TaskRecord}
+              component={TaskRecord}
+              options={{ headerShown: false }}
+            />
+          </>
+        )}
         <Stack.Screen
           name={screentName.styleguideHome}
           component={StyleguideHome}

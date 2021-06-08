@@ -23,24 +23,16 @@ const Auth = {
   },
 }
 
-const Wallet = {
-  getWalletAddress: () => {
-    return axios.get('/wallets/address')
+const bot = {
+  setApiKey: (body) => {
+    console.log('bot body', body)
+    return axios.post('/user', body)
   },
-  getWalletBalances: () => {
-    return axios.get('/wallets/balances')
+  newRobot: (body) => {
+    return axios.post('/user/robots', body)
   },
-  walletTransactions: (body) => {
-    return axios.post('/wallets/transactions', body)
-  },
-  getwalletCurrencyInfo: () => {
-    return axios.get('/wallets/currency-info')
-  },
-  getEasierHistory: (currency_code, start, end) => {
-    return axios.get('/wallets/history/' + currency_code + '?start_date=' + start + '&end_date=' + end)
-  },
-  walletDiggin: (body) => {
-    return axios.post('/wallets/digging', body)
+  getRobot: () => {
+    return axios.get('/user/robots')
   },
 }
 
@@ -55,6 +47,6 @@ const Account = {
 
 export default {
   Auth,
-  Wallet,
+  bot,
   Account,
 }

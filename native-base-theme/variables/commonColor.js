@@ -126,7 +126,7 @@ export default {
   checkboxTickColor: '#fff',
 
   // Top
-  mainBgColor: 'rgba(104, 80, 255, 0.2)',
+  mainBgColor: 'rgba(172, 121, 235, 0.2)',
   // Color
   brandPrimary: '#AC79EB',
   brandText: '#AC79EB',

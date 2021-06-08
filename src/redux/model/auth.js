@@ -9,6 +9,20 @@ export default {
 
   /** Effects/Actions */
   effects: (dispatch) => ({
+    async getUser() {
+      try {
+        const result = await agent.Account.getUser()
+        const { data } = result
+        if (!result.message) {
+          dispatch.auth.setUserValue({ name: 'account', value: data.account })
+          dispatch.auth.setUserValue({ name: 'account_prefix', value: data.account_prefix })
+          dispatch.auth.setUserValue({ name: 'api_key_setted', value: data.api_key_setted })
+          dispatch.auth.setUserValue({ name: 'recommend_code', value: data.recommend_code })
+        }
+      } catch (error) {
+        console.log('[redux/model/auth] getUser error', error)
+      }
+    },
     async refreshToken(oldToken) {
       const body = {
         refresh_token: oldToken,
@@ -16,8 +30,8 @@ export default {
       try {
         const result = await agent.Auth.refreshToken(body)
         const { data } = result
-        console.log('refreshToken:',result)
-        if(result){
+        console.log('refreshToken:', result)
+        if (result) {
           dispatch.register.setToken(result.token)
           dispatch.register.setRefreshToken(result.refresh_token)
         }
@@ -37,6 +51,16 @@ export default {
      * @param {*} payload.value
      */
     setInputValue(state, payload) {
+      const { name, value } = payload
+      return { ...state, [name]: value }
+    },
+
+    /**
+     * handle input change
+     * @param {obj} state
+     * @param {obj} payload
+     */
+    setUserValue(state, payload) {
       const { name, value } = payload
       return { ...state, [name]: value }
     },

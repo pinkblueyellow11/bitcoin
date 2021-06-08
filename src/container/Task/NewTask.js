@@ -1,6 +1,6 @@
 import React, { Component, useState, useEffect, useCallback } from 'react'
 import { PermissionsAndroid, Linking } from 'react-native'
-import TaskHome from '../../component/Task/TaskHome'
+import NewTask from '../../component/Task/NewTask'
 import agent from '../../lib/agent'
 import { useDispatch, useSelector } from 'react-redux'
 import { ERROR_STATUS } from '../../constant/signIn'
@@ -8,34 +8,34 @@ import Constants from 'expo-constants'
 
 export default function LoginContainer(props) {
   const {} = props
+  const { chooseCoinTypeValue } = props.route.params
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
-  const [robotArray, setRobotArray] = useState(null)
   // redux
-  const refreshBot = useSelector((state) => state.bot.refreshBot)
   const dispatch = useDispatch()
   const setRefreshBot = (value) => dispatch.bot.setRefreshBot(value)
 
-  const getRobot = async (body) => {
+  const newRobot = async (body) => {
     setIsWaiting(true)
     try {
-      const result = await agent.bot.getRobot(body)
+      const result = await agent.bot.newRobot(body)
       setIsWaiting(false)
-      console.log('result', result)
-      setRobotArray(result.data)
+      setRefreshBot(true)
       return result
     } catch (error) {
-      console.log('[container/Task/TaskHome] getRobot error', error)
+      console.log('[container/Task/NewTask] newRobot error', error)
       setErrorMsg(ERROR_STATUS[error.status])
       setIsWaiting(false)
       return error
     }
   }
 
-  useEffect(() => {
-    getRobot()
-    if (refreshBot) setRefreshBot(false)
-  }, [refreshBot])
-
-  return <TaskHome robotArray={robotArray} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  return (
+    <NewTask
+      chooseCoinTypeValue={chooseCoinTypeValue}
+      newRobot={newRobot}
+      setErrorMsg={setErrorMsg}
+      errorMsg={errorMsg}
+    />
+  )
 }

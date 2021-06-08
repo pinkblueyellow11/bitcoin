@@ -50,7 +50,9 @@ function Home(props) {
           <Text style={{ color: 'white', alignSelf: 'center' }}>MAA</Text>
         </Body>
         <Right>
-          <AntDesign name="bells" size={22} color={Colors.mainColor} />
+          <Pressable onPress={() => navigation.navigate(screenName.Notification)}>
+            <AntDesign name="bells" size={22} color={Colors.mainColor} />
+          </Pressable>
         </Right>
       </Header>
       <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
@@ -61,7 +63,7 @@ function Home(props) {
             <View>
               <Pressable
                 style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
-                onPress={() => {}}
+                onPress={() => navigation.navigate(screenName.Invite)}
               >
                 <AntDesign name="smileo" size={24} color="white" />
               </Pressable>
@@ -74,7 +76,7 @@ function Home(props) {
             <View>
               <Pressable
                 style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
-                onPress={() => {}}
+                onPress={() => navigation.navigate(screenName.Community)}
               >
                 <MaterialIcons name="groups" size={24} color="white" />
               </Pressable>
@@ -87,7 +89,7 @@ function Home(props) {
             <View>
               <Pressable
                 style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
-                onPress={() => {}}
+                onPress={() => navigation.navigate(screenName.ApiScreen)}
               >
                 <MaterialCommunityIcons name="api" size={24} color="white" />
               </Pressable>

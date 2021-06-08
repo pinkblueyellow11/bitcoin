@@ -63,7 +63,7 @@ export default function VerifyPhone(props) {
         {
           text: '確定',
           onPress: () => {
-            navigation.navigate(screenName.MyAccount)
+            navigation.navigate(screenName.Login)
           },
         },
       ])

@@ -34,7 +34,7 @@ import { MaterialCommunityIcons, AntDesign, MaterialIcons } from '@expo/vector-i
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskHome(props) {
-  const { errorMsg, setErrorMsg } = props
+  const { robotArray, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
 
   const windowWidth = useWindowDimensions().width
@@ -50,7 +50,7 @@ function TaskHome(props) {
           <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>任務</Text>
         </Body>
         <Right>
-          <Pressable onPress={() => {}}>
+          <Pressable onPress={() => navigation.navigate(screenName.ChooseCoinType)}>
             <Text style={{ color: Colors.mainColor }}>新建任務</Text>
           </Pressable>
         </Right>
@@ -81,25 +81,94 @@ function TaskHome(props) {
             <Text style={styles.boxText2}>0</Text>
           </View>
         </View>
-        <Spacer size={24} flex={0} />
-        <View style={{ backgroundColor: Colors.grayBgColor, flexDirection: 'row' }}>
-          <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>
-            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>買進時間</Text>
+        <Spacer size={32} flex={0} />
+        {robotArray &&
+          robotArray.map((value, index) => {
+            console.log('value', value)
+            const coinType = value.coin_code.replace('usdt', '').toUpperCase()
+            return (
+              <View key={index}>
+                <Spacer size={12} flex={0} />
+                <View style={styles.listTitleBox}>
+                  <Text style={styles.listTitle}>{coinType}/USDT</Text>
+                  <Text style={{ color: value.enabled ? '#11AB2C' : '#FF3B30' }}>
+                    <Text style={{ color: Colors.grayText3 }}>狀態：</Text>
+                    {value.enabled ? '開啟' : '關閉'}
+                  </Text>
+                </View>
+                <View style={styles.listBox}>
+                  <View style={{ flexDirection: 'row' }}>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>持倉量</Text>
+                      <Text style={styles.listNumber}>0</Text>
+                    </View>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>持倉均價</Text>
+                      <Text style={styles.listNumber}>0</Text>
+                    </View>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>持倉總額</Text>
+                      <Text style={styles.listNumber}>0</Text>
+                    </View>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>總盈利</Text>
+                      <Text style={styles.listNumber}>0</Text>
+                    </View>
+                  </View>
+                  <Spacer size={20} flex={0} />
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>當前價格</Text>
+                      <Text style={styles.listNumber}>0</Text>
+                    </View>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>持倉單數</Text>
+                      <Text style={styles.listNumber}>0</Text>
+                    </View>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>盈虧幅</Text>
+                      <Text style={styles.listNumber}>0%</Text>
+                    </View>
+                    <View style={styles.litBoxRow}>
+                      <Text style={styles.listBoxTitle}>盈虧</Text>
+                      <Text style={styles.listNumber}>0</Text>
+                    </View>
+                  </View>
+                </View>
+                <Spacer size={8} flex={0} />
+                <Pressable
+                  onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value })}
+                  style={{ alignSelf: 'flex-end', flexDirection: 'row' }}
+                >
+                  <Text style={[styles.listNumber, { color: Colors.mainColor }]}>查看詳情</Text>
+                  <View style={{ alignSelf: 'flex-end' }}>
+                    <AntDesign name="arrowright" size={24} color={Colors.mainColor} />
+                  </View>
+                </Pressable>
+                <Spacer size={30} flex={0} />
+                <View style={{ height: 0.5, backgroundColor: Colors.grayText2 }} />
+              </View>
+            )
+          })}
+        {/* <View style={styles.rowBox}>
+          <Pressable onPress={() => {}} style={styles.rowBoxButton}>
+            <Text style={styles.rowBoxText}>買進時間</Text>
             <MaterialCommunityIcons name="menu-down-outline" size={18} color={Colors.mainBgColor} />
           </Pressable>
-          <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>
-            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>買進數量</Text>
+          <Pressable onPress={() => {}} style={styles.rowBoxButton}>
+            <Text style={styles.rowBoxText}>買進數量</Text>
             <MaterialCommunityIcons name="menu-down-outline" size={18} color={Colors.mainBgColor} />
           </Pressable>
-          <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>
-            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>買進收益</Text>
+          <Pressable onPress={() => {}} style={styles.rowBoxButton}>
+            <Text style={styles.rowBoxText}>買進收益</Text>
             <MaterialCommunityIcons name="menu-down-outline" size={18} color={Colors.mainBgColor} />
           </Pressable>
-          <Pressable onPress={() => {}} style={{ flexDirection: 'row', paddingHorizontal: 4 }}>
-            <Text style={[componentProps.fontBodySmall, { color: Colors.grayText3 }]}>收益率</Text>
+          <Pressable onPress={() => {}} style={styles.rowBoxButton}>
+            <Text style={styles.rowBoxText}>收益率</Text>
             <MaterialCommunityIcons name="menu-down-outline" size={18} color={Colors.mainBgColor} />
           </Pressable>
-        </View>
+        </View> */}
+
         <Spacer size={100} flex={0} />
       </ScrollView>
     </Container>
@@ -122,6 +191,45 @@ const styles = StyleSheet.create({
     color: Colors.redText,
     textAlign: 'center',
     paddingBottom: 10,
+  },
+  rowBox: {
+    backgroundColor: Colors.grayBgColor,
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  rowBoxButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 4,
+  },
+  rowBoxText: {
+    ...componentProps.fontBodySmall,
+    color: Colors.grayText3,
+  },
+  listTitleBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+  },
+  listTitle: {
+    ...componentProps.fontBody1Medium,
+    color: Colors.mainColor,
+  },
+  listBox: {
+    backgroundColor: Colors.inputBgColor,
+    paddingHorizontal: 8,
+    paddingVertical: 16,
+  },
+  litBoxRow: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  listBoxTitle: {
+    ...componentProps.fontBodySmall6,
+    color: Colors.grayText3,
+  },
+  listNumber: {
+    ...componentProps.fontBody1Medium,
+    marginTop: 8,
   },
 })
 
