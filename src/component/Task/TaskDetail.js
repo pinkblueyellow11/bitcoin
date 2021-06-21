@@ -34,18 +34,17 @@ import { Ionicons, AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-i
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskDetail(props) {
-  const { taskInfo, errorMsg, setErrorMsg } = props
+  const { taskDetail, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
 
   const [coinType, setCoinType] = useState('')
   const [isOpen, setIsOpen] = useState(true)
 
   useEffect(() => {
-    console.log('taskInfo', taskInfo)
-    if (!taskInfo) return
-    setCoinType(taskInfo.coin_code.replace('usdt', '').toUpperCase())
-    if (!taskInfo.enabled) setIsOpen(false)
-  }, [taskInfo])
+    if (!taskDetail) return
+    setCoinType(taskDetail.coin_code.replace('usdt', '').toUpperCase())
+    if (!taskDetail.enabled) setIsOpen(false)
+  }, [taskDetail])
 
   const handleSubmit = async () => {}
 
@@ -100,22 +99,32 @@ function TaskDetail(props) {
           <View style={{ flexDirection: 'row' }}>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>持倉總額</Text>
-              <Text style={styles.listNumber}>0</Text>
+              <Text style={styles.listNumber}>
+                {taskDetail && <Text>{parseFloat(taskDetail.usdt_purchase_amount).toFixed(2)}</Text>}
+              </Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>持倉量</Text>
-              <Text style={styles.listNumber}>0</Text>
+              <Text style={styles.listNumber}>
+                {taskDetail && <Text>{parseFloat(taskDetail.purchase_amount).toFixed(2)}</Text>}
+              </Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>持倉均價</Text>
-              <Text style={styles.listNumber}>0</Text>
+              <Text style={styles.listNumber}>
+                {taskDetail && taskDetail.robot_trans_info.purchase_average && (
+                  <Text>{parseFloat(taskDetail.robot_trans_info.purchase_average).toFixed(2)}</Text>
+                )}
+              </Text>
             </View>
           </View>
           <Spacer size={20} flex={0} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>當前價格</Text>
-              <Text style={styles.listNumber}>0</Text>
+              <Text style={styles.listNumber}>
+                {taskDetail && <Text>{parseFloat(taskDetail.coin_cost).toFixed(2)}</Text>}
+              </Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>當前補倉</Text>
@@ -123,14 +132,18 @@ function TaskDetail(props) {
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>交易次數</Text>
-              <Text style={styles.listNumber}>0%</Text>
+              <Text style={styles.listNumber}>
+                {taskDetail && <Text>{parseFloat(taskDetail.robot_trans_info.purchase_count)}</Text>}
+              </Text>
             </View>
           </View>
           <Spacer size={20} flex={0} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>總收益</Text>
-              <Text style={[styles.listNumber, { color: Colors.redText }]}>0</Text>
+              <Text style={[styles.listNumber, { color: Colors.redText }]}>
+                {taskDetail && <Text>{parseFloat(taskDetail.profit).toFixed(2)}</Text>}
+              </Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>盈虧幅</Text>
@@ -149,44 +162,44 @@ function TaskDetail(props) {
           <View style={styles.listBox2Row}>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>做單數量</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.purchase_target_times}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.purchase_target_times}</Text>}
             </View>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>首單金額</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.first_purchase_cost}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.first_purchase_cost}</Text>}
             </View>
           </View>
           <Spacer size={16} flex={0} />
           <View style={styles.listBox2Row}>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>進第一單</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.first_purchase_target}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.first_purchase_target}</Text>}
             </View>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>止盈比例</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.sell_target}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.sell_target}</Text>}
             </View>
           </View>
           <Spacer size={16} flex={0} />
           <View style={styles.listBox2Row}>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>跌幅加單</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.purchase_target}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.purchase_target}</Text>}
             </View>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>加單增幅</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.purchase_addition_target}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.purchase_addition_target}</Text>}
             </View>
           </View>
           <Spacer size={16} flex={0} />
           <View style={styles.listBox2Row}>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>下跌回漲</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.purchase_bounce_target}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.purchase_bounce_target}</Text>}
             </View>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>上漲回降</Text>
-              {taskInfo && <Text>{taskInfo.robot_setting.sell_bounce_target}</Text>}
+              {taskDetail && <Text>{taskDetail.robot_setting.sell_bounce_target}</Text>}
             </View>
           </View>
         </View>

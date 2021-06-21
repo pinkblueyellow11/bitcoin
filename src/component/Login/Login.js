@@ -219,7 +219,7 @@ function Login(props) {
             />
             <Input
               style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
-              placeholder="請輸入帳號"
+              placeholder={isPhoneAccount ? '請輸入手機' : '請輸入Email'}
               placeholderTextColor={Colors.placeholderTColor}
               value={accountValue}
               onChangeText={setAccountValue}

@@ -18,6 +18,9 @@ import TaskDetail from './container/Task/TaskDetail'
 import ChooseCoinType from './container/Task/ChooseCoinType'
 import TaskRecord from './container/Task/TaskRecord'
 import Assets from './container/Assets/Assets'
+import ReCharge from './container/Assets/ReCharge'
+import ReChargeUpdate from './container/Assets/ReChargeUpdate'
+import Withdrawal from './container/Assets/Withdrawal'
 import Notification from './container/Notification/Notification'
 import Invite from './container/Home/Invite'
 import Community from './container/Home/Community'
@@ -107,7 +110,7 @@ export default function Navigation() {
           name={screentName.Assets}
           component={Assets}
           options={{
-            tabBarLabel: '資產',
+            tabBarLabel: '燃料',
             tabBarIcon: ({ color, size }) => <Ionicons name="wallet-outline" size={size} color={color} />,
           }}
         />
@@ -153,6 +156,17 @@ export default function Navigation() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name={screentName.NewTask} component={NewTask} options={{ headerShown: false }} />
+            <Stack.Screen name={screentName.ReCharge} component={ReCharge} options={{ headerShown: false }} />
+            <Stack.Screen
+              name={screentName.ReChargeUpdate}
+              component={ReChargeUpdate}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={screentName.Withdrawal}
+              component={Withdrawal}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name={screentName.ChooseCoinType}
               component={ChooseCoinType}

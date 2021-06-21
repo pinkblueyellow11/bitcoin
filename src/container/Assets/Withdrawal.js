@@ -1,42 +1,33 @@
 import React, { Component, useState, useEffect, useCallback } from 'react'
 import { PermissionsAndroid, Linking } from 'react-native'
-import ApiScreen from '../../component/Home/ApiScreen'
+import Withdrawal from '../../component/Assets/Withdrawal'
 import agent from '../../lib/agent'
 import { useDispatch, useSelector } from 'react-redux'
 import { ERROR_STATUS } from '../../constant/signIn'
 import Constants from 'expo-constants'
 
+const INVALID_TOKEN = 401002
+
 export default function LoginContainer(props) {
   const {} = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
-  // redux
-  const api_key_setted = useSelector((state) => state.auth.api_key_setted)
-  const dispatch = useDispatch()
-  const getUser = () => dispatch.auth.getUser()
 
-  const postApiKey = async (body) => {
+  const drawCoin = async (body) => {
     setIsWaiting(true)
     try {
-      const result = await agent.bot.setApiKey(body)
+      console.log('body', body)
+      const result = await agent.bot.drawCoin(body)
       setIsWaiting(false)
       console.log('result', result)
-      getUser()
-      return result
+      //return result
     } catch (error) {
-      console.log('[container/Home] setApiKey error', error)
+      console.log('[container/Home] getCoinCost error', error)
       setErrorMsg(ERROR_STATUS[error.status])
       setIsWaiting(false)
-      return error
+      //return error
     }
   }
 
-  return (
-    <ApiScreen
-      api_key_setted={api_key_setted}
-      postApiKey={postApiKey}
-      setErrorMsg={setErrorMsg}
-      errorMsg={errorMsg}
-    />
-  )
+  return <Withdrawal drawCoin={drawCoin} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
 }

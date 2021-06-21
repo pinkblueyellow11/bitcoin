@@ -12,6 +12,7 @@ export default function LoginContainer(props) {
   const [errorMsg, setErrorMsg] = useState(null)
   const [robotArray, setRobotArray] = useState(null)
   // redux
+  const api_key_setted = useSelector((state) => state.auth.api_key_setted)
   const refreshBot = useSelector((state) => state.bot.refreshBot)
   const dispatch = useDispatch()
   const setRefreshBot = (value) => dispatch.bot.setRefreshBot(value)
@@ -37,5 +38,12 @@ export default function LoginContainer(props) {
     if (refreshBot) setRefreshBot(false)
   }, [refreshBot])
 
-  return <TaskHome robotArray={robotArray} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  return (
+    <TaskHome
+      robotArray={robotArray}
+      api_key_setted={api_key_setted}
+      setErrorMsg={setErrorMsg}
+      errorMsg={errorMsg}
+    />
+  )
 }

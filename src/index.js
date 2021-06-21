@@ -8,6 +8,7 @@ import { PersistGate } from 'redux-persist/es/integration/react'
 import getTheme from '../native-base-theme/components'
 import theme from '../native-base-theme/variables/commonColor'
 import Navigation from './navigation'
+import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 
 export default function App(props) {
   const { store, persistor } = props
@@ -25,7 +26,9 @@ export default function App(props) {
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <StyleProvider style={getTheme(theme)}>
-            <Navigation />
+            <ActionSheetProvider>
+              <Navigation />
+            </ActionSheetProvider>
           </StyleProvider>
         </PersistGate>
       </Provider>

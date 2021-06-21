@@ -9,4 +9,8 @@ export const ERROR_STATUS = {
   601001: '餘額不足',
   401005: '資金密碼錯誤',
   601003: '挖礦中...',
+  601005: '請先設置API KEY',
+  601004: 'Fail to fetch account id',
+  601012: 'USDT amount is not enough',
+  101004: 'Referrer does not exist',
 }

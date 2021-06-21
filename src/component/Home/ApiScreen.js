@@ -42,6 +42,7 @@ function ApiScreen(props) {
   const [secretKeyText, setSecretKeyText] = useState('')
   const [focusedInput, setFocusedInput] = useState(null)
   const [activeSubmit, setActiveSubmit] = useState(false)
+  const [isEditStatus, setIsEditStatus] = useState(false)
 
   const navigation = useNavigation()
 
@@ -51,11 +52,14 @@ function ApiScreen(props) {
     if (api_key_setted) {
       setApiKeyText('* * * * * * * * * * *')
       setSecretKeyText('* * * * * * * * * * *')
+      setIsEditStatus(false)
+    } else {
+      setIsEditStatus(true)
     }
   }, [api_key_setted])
 
   useEffect(() => {
-    if (apiKeyText === '' || secretKeyText === '') {
+    if (apiKeyText === '' || secretKeyText === '' || !isEditStatus) {
       setActiveSubmit(false)
     } else {
       setActiveSubmit(true)
@@ -69,22 +73,33 @@ function ApiScreen(props) {
     }
     console.log('body', body)
     const result = await postApiKey(body)
+    console.log('result', result)
     if (!result.message) {
       Alert.alert('成功', '', [
         {
           text: '好',
-          onPress: () => {},
-        },
-      ])
-    } else {
-      Alert.alert('系統繁忙', '請多試幾次', [
-        {
-          text: '好',
-          onPress: () => {},
+          onPress: () => {
+            setApiKeyText('* * * * * * * * * * *')
+            setSecretKeyText('* * * * * * * * * * *')
+            setIsEditStatus(false)
+          },
         },
       ])
     }
   }
+
+  useEffect(() => {
+    if (errorMsg !== null) {
+      console.log('errorMsg', errorMsg)
+      Alert.alert('錯誤訊息', errorMsg, [
+        {
+          text: '確定',
+          onPress: () => {},
+        },
+      ])
+      setErrorMsg(null)
+    }
+  }, [errorMsg])
 
   return (
     <Container style={{}}>
@@ -99,8 +114,18 @@ function ApiScreen(props) {
           <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>API授權</Text>
         </Body>
         <Right>
-          <Pressable onPress={() => {}}>
-            <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>查看教程</Text>
+          <Pressable
+            onPress={() => {
+              if (api_key_setted && !isEditStatus) {
+                setIsEditStatus(true)
+                setApiKeyText('')
+                setSecretKeyText('')
+              }
+            }}
+          >
+            <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>
+              {api_key_setted && !isEditStatus ? '編輯' : '查看教程'}
+            </Text>
           </Pressable>
         </Right>
       </Header>
@@ -112,6 +137,7 @@ function ApiScreen(props) {
             placeholder="請輸入API KEY"
             placeholderTextColor={Colors.placeholderTColor}
             value={apiKeyText}
+            editable={isEditStatus}
             onChangeText={setApiKeyText}
             onFocus={() => setFocusedInput(INPUT_FIELD.apiKeyText)}
             onBlur={() => setFocusedInput(null)}
@@ -125,27 +151,32 @@ function ApiScreen(props) {
             placeholder="請輸入SECRET KEY"
             placeholderTextColor={Colors.placeholderTColor}
             value={secretKeyText}
+            editable={isEditStatus}
             onChangeText={setSecretKeyText}
             onFocus={() => setFocusedInput(INPUT_FIELD.secretKeyText)}
             onBlur={() => setFocusedInput(null)}
           />
         </Item>
         <Spacer size={24} flex={0} />
-        <Button
-          full
-          disabled={!activeSubmit}
-          style={{
-            borderRadius: componentProps.borderRadius,
-            borderColor: Colors.mainColor,
-            borderWidth: 1,
-            //backgroundColor: Colors.brandPrimary,
-          }}
-          onPress={handleSubmit}
-        >
-          <Text style={[componentProps.fontBodySmall, { color: activeSubmit ? 'white' : Colors.brandText }]}>
-            儲存
-          </Text>
-        </Button>
+        {isEditStatus && (
+          <Button
+            full
+            disabled={!activeSubmit}
+            style={{
+              borderRadius: componentProps.borderRadius,
+              borderColor: Colors.mainColor,
+              borderWidth: 1,
+              //backgroundColor: Colors.brandPrimary,
+            }}
+            onPress={handleSubmit}
+          >
+            <Text
+              style={[componentProps.fontBodySmall, { color: activeSubmit ? 'white' : Colors.brandText }]}
+            >
+              儲存
+            </Text>
+          </Button>
+        )}
         <Spacer size={100} flex={0} />
       </ScrollView>
     </Container>

@@ -96,7 +96,7 @@ export default function VerifyPhone(props) {
           </Pressable>
         </Left>
         <Body>
-          <Text style={{ color: 'white', alignSelf: 'center' }}>簡訊驗證</Text>
+          <Text style={{ color: 'white', alignSelf: 'center' }}>{isPhoneAccount ? '簡訊' : 'Email'}驗證</Text>
         </Body>
         <Right>
           <Pressable onPress={() => handleRegister()}>

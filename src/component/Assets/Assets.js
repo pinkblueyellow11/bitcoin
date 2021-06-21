@@ -38,7 +38,7 @@ function Assets(props) {
 
   const windowWidth = useWindowDimensions().width
 
-  const handleSubmit = async () => {}
+  const handleSubmit = async () => { }
 
   return (
     <Container style={{}}>
@@ -46,24 +46,37 @@ function Assets(props) {
         <StatusBar style="dark" backgroundColor="transparent" />
         <Left style={{ flex: 1 }}></Left>
         <Body>
-          <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>資產</Text>
+          <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>燃料</Text>
         </Body>
         <Right></Right>
       </Header>
       <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
         <View style={{ backgroundColor: '#F3EAFF', borderRadius: componentProps.borderRadius }}>
-          <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              paddingHorizontal: 16,
+              justifyContent: 'space-between',
+              paddingTop: 32,
+            }}
+          >
             <Text style={[componentProps.fontBodySmall3, { color: Colors.grayText3, alignSelf: 'center' }]}>
-              帳戶總資產
+              燃料餘額
             </Text>
             <Text style={[componentProps.fontH1, { color: Colors.redText, alignSelf: 'center' }]}>0</Text>
           </View>
           <Spacer size={24} flex={0} />
           <View style={styles.boxButtonView}>
-            <Pressable onPress={() => {}} style={[styles.boxButton, { marginRight: 12 }]}>
+            <Pressable
+              onPress={() => navigation.navigate(screenName.ReCharge)}
+              style={[styles.boxButton, { marginRight: 12 }]}
+            >
               <Text style={styles.boxButtonText}>充值</Text>
             </Pressable>
-            <Pressable onPress={() => {}} style={[styles.boxButton, { marginLeft: 12 }]}>
+            <Pressable
+              onPress={() => navigation.navigate(screenName.Withdrawal)}
+              style={[styles.boxButton, { marginLeft: 12 }]}
+            >
               <Text style={styles.boxButtonText}>提幣</Text>
             </Pressable>
           </View>
@@ -84,11 +97,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: 'white',
     flex: 1,
-    ...componentProps.borderRadius,
+    borderRadius: componentProps.borderRadius,
   },
   boxButtonText: {
-    ...componentProps.fontBodySmall2,
-    color: Colors.mainColor,
+    ...componentProps.fontBodyBold2,
+    color: Colors.brandText,
     alignSelf: 'center',
   },
 })

@@ -1,42 +1,33 @@
 import React, { Component, useState, useEffect, useCallback } from 'react'
 import { PermissionsAndroid, Linking } from 'react-native'
-import ApiScreen from '../../component/Home/ApiScreen'
+import ReChargeUpdate from '../../component/Assets/ReChargeUpdate'
 import agent from '../../lib/agent'
 import { useDispatch, useSelector } from 'react-redux'
 import { ERROR_STATUS } from '../../constant/signIn'
 import Constants from 'expo-constants'
 
+const INVALID_TOKEN = 401002
+
 export default function LoginContainer(props) {
   const {} = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
-  // redux
-  const api_key_setted = useSelector((state) => state.auth.api_key_setted)
-  const dispatch = useDispatch()
-  const getUser = () => dispatch.auth.getUser()
 
-  const postApiKey = async (body) => {
+  const upReceipt = async (formData) => {
     setIsWaiting(true)
     try {
-      const result = await agent.bot.setApiKey(body)
+      console.log('formData', formData)
+      const result = await agent.bot.upReceipt(formData)
+      console.log('upReceipt result', result)
       setIsWaiting(false)
-      console.log('result', result)
-      getUser()
       return result
     } catch (error) {
-      console.log('[container/Home] setApiKey error', error)
-      setErrorMsg(ERROR_STATUS[error.status])
+      console.log('error', error)
+      //setErrorMsg(ERROR_STATUS[error.status])
       setIsWaiting(false)
       return error
     }
   }
 
-  return (
-    <ApiScreen
-      api_key_setted={api_key_setted}
-      postApiKey={postApiKey}
-      setErrorMsg={setErrorMsg}
-      errorMsg={errorMsg}
-    />
-  )
+  return <ReChargeUpdate upReceipt={upReceipt} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
 }

@@ -10,13 +10,14 @@ export default function LoginContainer(props) {
 
   const register = async (body) => {
     setIsWaiting(true)
+    console.log('register body', body)
     try {
       const result = await agent.Auth.register(body)
-      console.log('result', result)
+      console.log('register result', result)
       setIsWaiting(false)
       return result
     } catch (error) {
-      console.log('error', error)
+      console.log('register error', error)
       setErrorMsg(ERROR_STATUS[error.status])
       setIsWaiting(false)
       return error

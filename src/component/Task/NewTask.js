@@ -55,36 +55,35 @@ function NewTask(props) {
   const [increaseInOrder, setIncreaseInOrder] = useState('')
   const [fallBackToRise, setFallBackToRise] = useState('')
   const [riseAndFall, setRiseAndFall] = useState('')
+
+  const [isOrderCountError, setIsOrderCountError] = useState(false)
+  const [isFirstOrderAmountError, setIsFirstOrderAmountError] = useState(false)
+  const [isEnterTheFirstOrderError, setIsEnterTheFirstOrderError] = useState(false)
+  const [isTakeProfitRatioError, setIsTakeProfitRatioError] = useState(false)
+  const [isDecreasePlusOrderError, setIsDecreasePlusOrderError] = useState(false)
+  const [isIncreaseInOrderError, setIsIncreaseInOrderError] = useState(false)
+  const [isFallBackToRiseError, setIsFallBackToRiseError] = useState(false)
+  const [isRiseAndFallError, setIsRiseAndFallError] = useState(false)
+
   const [focusedInput, setFocusedInput] = useState(null)
   const [onceType, setOnceType] = useState(true)
   const [activeSubmit, setActiveSubmit] = useState(false)
 
   const windowWidth = useWindowDimensions().width
 
-  useEffect(() => {
-    if (
-      orderCount === '' ||
-      firstOrderAmount === '' ||
-      enterTheFirstOrder === '' ||
-      riseAndFall === '' ||
-      increaseInOrder === '' ||
-      fallBackToRise === '' ||
-      fallBackToRise === ''
-    ) {
-      setActiveSubmit(false)
-    } else {
-      setActiveSubmit(true)
-    }
-  }, [
-    orderCount,
-    firstOrderAmount,
-    enterTheFirstOrder,
-    takeProfitRatio,
-    decreasePlusOrder,
-    increaseInOrder,
-    fallBackToRise,
-    riseAndFall,
-  ])
+  const checkValue = (value) => {
+    //正整數或小數1位。大於0，小於或等於20
+    if (value > 0 && value <= 20 && (value % 1 == 0 || value.toString().split('.')[1].length == 1))
+      return true
+    else return false
+  }
+
+  const checkIncreaseInOrderValue = (value) => {
+    //正整數或小數1位。大於0，小於或等於20
+    if (value >= 0 && value <= 20 && (value % 1 == 0 || value.toString().split('.')[1].length == 1))
+      return true
+    else return false
+  }
 
   const handleSubmit = async () => {
     const body = {
@@ -97,6 +96,7 @@ function NewTask(props) {
       purchase_addition_target: increaseInOrder, //增幅 (進單追加跌幅%數)
       purchase_bounce_target: fallBackToRise, //下跌回漲 (進單回漲%數)
       sell_bounce_target: riseAndFall, //上漲回跌 (出單回跌%數)
+      auto_repeat: onceType ? 0 : 1
     }
     console.log('body', body)
     const result = await newRobot(body)
@@ -114,11 +114,54 @@ function NewTask(props) {
   }
 
   useEffect(() => {
+    if (
+      orderCount === '' ||
+      firstOrderAmount === '' ||
+      enterTheFirstOrder === '' ||
+      riseAndFall === '' ||
+      increaseInOrder === '' ||
+      fallBackToRise === '' ||
+      fallBackToRise === '' ||
+      isOrderCountError ||
+      isFirstOrderAmountError ||
+      isEnterTheFirstOrderError ||
+      isTakeProfitRatioError ||
+      isDecreasePlusOrderError ||
+      isIncreaseInOrderError ||
+      isFallBackToRiseError ||
+      isRiseAndFallError ||
+      focusedInput
+    ) {
+      setActiveSubmit(false)
+    } else {
+      setActiveSubmit(true)
+    }
+  }, [
+    focusedInput,
+    orderCount,
+    firstOrderAmount,
+    enterTheFirstOrder,
+    takeProfitRatio,
+    decreasePlusOrder,
+    increaseInOrder,
+    fallBackToRise,
+    riseAndFall,
+    isOrderCountError,
+    isFirstOrderAmountError,
+    isEnterTheFirstOrderError,
+    isTakeProfitRatioError,
+    isDecreasePlusOrderError,
+    isIncreaseInOrderError,
+    isFallBackToRiseError,
+    isRiseAndFallError,
+  ])
+
+  useEffect(() => {
     if (errorMsg === null) return
     Alert.alert('錯誤', errorMsg, [
       {
         text: '好',
-        onPress: () => {},
+        onPress: () => { },
       },
     ])
     setErrorMsg(null)
@@ -148,6 +191,7 @@ function NewTask(props) {
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.orderCount}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 5~15 的正整數'}
               placeholderTextColor={Colors.placeholderTColor}
               value={orderCount}
               keyboardType="number-pad"
@@ -155,17 +199,25 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.orderCount)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (orderCount >= 5 && orderCount <= 15 && orderCount % 1 == 0) setIsOrderCountError(false)
+                else setIsOrderCountError(true)
               }}
             />
           </Item>
           <Text style={styles.itemEndText}>單</Text>
         </View>
+        {isOrderCountError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 5~15 的正整數
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>首單金額</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.firstOrderAmount}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 10~10000 的正整數'}
               placeholderTextColor={Colors.placeholderTColor}
               value={firstOrderAmount}
               keyboardType="number-pad"
@@ -173,16 +225,26 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.firstOrderAmount)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (firstOrderAmount >= 10 && firstOrderAmount <= 10000 && firstOrderAmount % 1 == 0)
+                  setIsFirstOrderAmountError(false)
+                else setIsFirstOrderAmountError(true)
               }}
             />
           </Item>
+          <Text style={styles.itemEndText}>U</Text>
         </View>
+        {isFirstOrderAmountError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 10~10000 的正整數
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>進第一單</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.enterTheFirstOrder}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 0.1~20 的正整數或小數點一位'}
               placeholderTextColor={Colors.placeholderTColor}
               value={enterTheFirstOrder}
               keyboardType="number-pad"
@@ -190,17 +252,25 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.enterTheFirstOrder)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (checkValue(enterTheFirstOrder)) setIsEnterTheFirstOrderError(false)
+                else setIsEnterTheFirstOrderError(true)
               }}
             />
           </Item>
           <Text style={styles.itemEndText}>%</Text>
         </View>
+        {isEnterTheFirstOrderError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 大於0 小於等於20 的正整數或小數點一位
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>止盈比例</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.takeProfitRatio}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 0.1~20 的正整數或小數點一位'}
               placeholderTextColor={Colors.placeholderTColor}
               value={takeProfitRatio}
               keyboardType="number-pad"
@@ -208,17 +278,25 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.takeProfitRatio)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (checkValue(takeProfitRatio)) setIsTakeProfitRatioError(false)
+                else setIsTakeProfitRatioError(true)
               }}
             />
           </Item>
           <Text style={styles.itemEndText}>%</Text>
         </View>
+        {isTakeProfitRatioError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 大於0 小於等於20 的正整數或小數點一位
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>跌幅加單</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.decreasePlusOrder}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 0.1~20 的正整數或小數點一位'}
               placeholderTextColor={Colors.placeholderTColor}
               value={decreasePlusOrder}
               keyboardType="number-pad"
@@ -226,17 +304,25 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.decreasePlusOrder)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (checkValue(decreasePlusOrder)) setIsDecreasePlusOrderError(false)
+                else setIsDecreasePlusOrderError(true)
               }}
             />
           </Item>
           <Text style={styles.itemEndText}>%</Text>
         </View>
+        {isDecreasePlusOrderError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 大於0 小於等於20 的正整數或小數點一位
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>加單增幅</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.increaseInOrder}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 0~20 的正整數或小數點一位'}
               placeholderTextColor={Colors.placeholderTColor}
               value={increaseInOrder}
               keyboardType="number-pad"
@@ -244,17 +330,25 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.increaseInOrder)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (checkIncreaseInOrderValue(increaseInOrder)) setIsIncreaseInOrderError(false)
+                else setIsIncreaseInOrderError(true)
               }}
             />
           </Item>
           <Text style={styles.itemEndText}>%</Text>
         </View>
+        {isIncreaseInOrderError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 大於等於0 小於等於20 的正整數或小數點一位
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>下跌回漲</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.fallBackToRise}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 0.1~20 的正整數或小數點一位'}
               placeholderTextColor={Colors.placeholderTColor}
               value={fallBackToRise}
               keyboardType="number-pad"
@@ -262,17 +356,25 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.fallBackToRise)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (checkValue(fallBackToRise)) setIsFallBackToRiseError(false)
+                else setIsFallBackToRiseError(true)
               }}
             />
           </Item>
           <Text style={styles.itemEndText}>%</Text>
         </View>
+        {isFallBackToRiseError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 大於0 小於等於20 的正整數或小數點一位
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>上漲回降</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.riseAndFall}>
             <Input
               style={styles.itemInput}
+              placeholder={'輸入範圍 0.1~20 的正整數或小數點一位'}
               placeholderTextColor={Colors.placeholderTColor}
               value={riseAndFall}
               keyboardType="number-pad"
@@ -280,13 +382,20 @@ function NewTask(props) {
               onFocus={() => setFocusedInput(INPUT_FIELD.riseAndFall)}
               onBlur={() => {
                 setFocusedInput(null)
+                if (checkValue(riseAndFall)) setIsRiseAndFallError(false)
+                else setIsRiseAndFallError(true)
               }}
             />
           </Item>
           <Text style={styles.itemEndText}>%</Text>
         </View>
+        {isRiseAndFallError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍 大於0 小於等於20 的正整數或小數點一位
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
-        {/* <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>策略類型</Text>
           <View style={{ flexDirection: 'row', width: '70%' }}>
             <Pressable
@@ -312,7 +421,7 @@ function NewTask(props) {
               <Text style={styles.typeBoxText}>循環策略</Text>
             </Pressable>
           </View>
-        </View> */}
+        </View>
         <Spacer size={32} flex={0} />
         <Button
           full

@@ -9,6 +9,7 @@ import Constants from 'expo-constants'
 export default function LoginContainer(props) {
   const {} = props
   const { taskInfo } = props.route.params
+  const [taskDetail, setTaskDetail] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
   // redux
@@ -16,5 +17,26 @@ export default function LoginContainer(props) {
   const dispatch = useDispatch()
   const setRefreshBot = (value) => dispatch.bot.setRefreshBot(value)
 
-  return <TaskDetail taskInfo={taskInfo} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  const getRobotDetail = async (params) => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.getRobotDetail(params)
+      setIsWaiting(false)
+      console.log('result', result)
+      setTaskDetail(result.data)
+    } catch (error) {
+      console.log('[container/Task/TaskDetail] getRobotDetail error', error)
+      //setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      //return error
+    }
+  }
+
+  useEffect(() => {
+    if (taskInfo) getRobotDetail(taskInfo.robot_id)
+  }, [taskInfo])
+
+  return (
+    <TaskDetail taskDetail={taskDetail} taskInfo={taskInfo} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  )
 }

@@ -27,4 +27,7 @@ export default {
   ChooseCoinType: 'ChooseCoinType',
   TaskDetail: 'TaskDetail',
   TaskRecord: 'TaskRecord',
+  ReCharge: 'ReCharge',
+  Withdrawal: 'Withdrawal',
+  ReChargeUpdate: 'ReChargeUpdate',
 }

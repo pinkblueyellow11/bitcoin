@@ -34,7 +34,7 @@ function MyAccount(props) {
   const navigation = useNavigation()
 
   const writeToClipboard = async () => {
-    await Clipboard.setString(userInfo && userInfo.recommend_code)
+    await Clipboard.setString(recommend_code && recommend_code)
     Alert.alert('複製成功！')
   }
 
@@ -123,7 +123,7 @@ function MyAccount(props) {
                 </Text>
               </View>
               <Button
-                style={{ backgroundColor: 'transparent', borderColor: 'white', borderWidth: 10 }}
+                style={{ backgroundColor: 'transparent', borderColor: 'white', borderWidth: 0 }}
                 onPress={() => writeToClipboard()}
               >
                 <Feather name="copy" size={20} color={Colors.mainColor} />

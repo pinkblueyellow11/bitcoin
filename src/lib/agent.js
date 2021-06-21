@@ -25,7 +25,6 @@ const Auth = {
 
 const bot = {
   setApiKey: (body) => {
-    console.log('bot body', body)
     return axios.post('/user', body)
   },
   newRobot: (body) => {
@@ -33,6 +32,20 @@ const bot = {
   },
   getRobot: () => {
     return axios.get('/user/robots')
+  },
+  getRobotDetail: (robot_id) => {
+    const params = { robot_id: robot_id }
+    return axios.get('/user/robots/' + robot_id)
+  },
+  getCoinCost: () => {
+    return axios.get('/coin-cost')
+  },
+  upReceipt: (body) => {
+    axios.defaults.headers.common['Content-Type'] = 'multipart/form-data'
+    return axios.post('/usdt/add-value', body)
+  },
+  drawCoin: (body) => {
+    return axios.post('/usdt/withdraw', body)
   },
 }
 

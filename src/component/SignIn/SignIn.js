@@ -33,6 +33,7 @@ import { Picker } from '@react-native-picker/picker'
 const { isDevEnv } = config
 
 const iconSize = 18
+const rules = /^[a-zA-Z\d_]{8,20}$/
 
 const INPUT_FIELD = {
   emailAccount: 'emailAccount',
@@ -56,19 +57,36 @@ export default function SignIn(props) {
   const [focusedInput, setFocusedInput] = useState(null)
   const [activeSubmit, setActiveSubmit] = useState(false)
   const [isShowErrorPhone, setIsShowErrorPhone] = useState(false)
+  const [isShowErrorPassword, setIsShowErrorPassword] = useState(false)
+  const [isShowErrorIntroducCode, setIsShowErrorIntroducCode] = useState(true)
   const [isPhoneAccount, setIsPhoneAccount] = useState(true)
   const [selectedValue, setSelectedValue] = useState('+886')
 
   useEffect(() => {
-    if (emailAccount === '' || passwordValue === '' || twoPasswordValue === '' || !isCheckedOne) {
+    if (
+      emailAccount === '' ||
+      passwordValue === '' ||
+      twoPasswordValue === '' ||
+      introducCode === '' ||
+      !isCheckedOne
+    ) {
       setActiveSubmit(false)
     } else {
       setActiveSubmit(true)
     }
-  }, [emailAccount, passwordValue, twoPasswordValue, isCheckedOne])
+    if (introducCode === '') {
+      setIsShowErrorIntroducCode(true)
+    } else {
+      setIsShowErrorIntroducCode(false)
+    }
+  }, [emailAccount, passwordValue, twoPasswordValue, isCheckedOne, introducCode])
 
   const handlePhoneBlur = () => {
     setIsShowErrorPhone(!isValidTaiwanPhone(emailAccount))
+  }
+
+  const handlePasswordBlur = () => {
+    setIsShowErrorPassword(!rules.test(passwordValue))
   }
 
   const handleSubmit = () => {
@@ -76,7 +94,7 @@ export default function SignIn(props) {
       Alert.alert('密碼不相同', '', [
         {
           text: '確定',
-          onPress: () => {},
+          onPress: () => { },
         },
       ])
     } else {
@@ -129,7 +147,7 @@ export default function SignIn(props) {
       },
       {
         text: '好',
-        onPress: () => {},
+        onPress: () => { },
       },
     ])
     setErrorMsg(null)
@@ -206,7 +224,7 @@ export default function SignIn(props) {
               />
               <Input
                 style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
-                placeholder="請輸入帳號"
+                placeholder={isPhoneAccount ? '請輸入手機' : '請輸入Email'}
                 placeholderTextColor={Colors.placeholderTColor}
                 value={emailAccount}
                 onChangeText={setEmailAccount}
@@ -230,11 +248,18 @@ export default function SignIn(props) {
                 value={passwordValue}
                 onChangeText={setPasswordValue}
                 onFocus={() => setFocusedInput(INPUT_FIELD.passwordValue)}
-                onBlur={() => setFocusedInput(null)}
+                onBlur={() => {
+                  if (isShowErrorPassword) setFocusedInput(null)
+                  handlePasswordBlur()
+                }}
                 secureTextEntry={true}
               />
             </Item>
-            <Spacer size={24} flex={0} />
+            <Spacer size={4} flex={0} />
+            {isShowErrorPassword && (
+              <Text style={[componentProps.errorMsg, { color: Colors.redText }]}>8~20碼, 只能是英數或_</Text>
+            )}
+            <Spacer size={20} flex={0} />
             <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.twoPasswordValue}>
               <AntDesign name="lock" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
               <Input
@@ -266,6 +291,10 @@ export default function SignIn(props) {
                 onBlur={() => setFocusedInput(null)}
               />
             </Item>
+            <Spacer size={4} flex={0} />
+            {isShowErrorIntroducCode && (
+              <Text style={[componentProps.errorMsg, { color: Colors.redText }]}>推薦碼為必填欄位</Text>
+            )}
             <Spacer size={24} flex={0} />
             <View>
               <CheckBox

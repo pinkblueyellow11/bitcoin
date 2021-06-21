@@ -13,6 +13,7 @@ export default function LoginContainer(props) {
     try {
       const result = await agent.Auth.registerVerifyEmail(body)
       setIsWaiting(false)
+      console.log('result', result)
       return result.data
     } catch (error) {
       console.log('[container/SignIn] sendEmail error', error)

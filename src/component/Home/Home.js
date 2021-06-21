@@ -31,13 +31,42 @@ import config from '../../constant/config'
 import Carousel from 'react-native-snap-carousel'
 import { MaterialCommunityIcons, AntDesign, MaterialIcons } from '@expo/vector-icons'
 
-const initialLayout = { width: Dimensions.get('window').width }
+const showCoinType = [
+  'TC',
+  'ETH',
+  'BCH',
+  'LTC',
+  'ADA',
+  'XRP',
+  'DOGE',
+  'DOT',
+  'LINK',
+  'UNI',
+  'SOL',
+  'ETC',
+  'TRX',
+  'AAVE',
+  'FTT',
+]
 
 function Home(props) {
-  const { errorMsg, setErrorMsg } = props
+  const { coinCost, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
 
-  const windowWidth = useWindowDimensions().width
+  const [showCoinListArray, setShowCoinListArray] = useState(null)
+
+  useEffect(() => {
+    if (!coinCost || !Array.isArray(coinCost)) return
+    const filterCoin = []
+    for (const item of coinCost) {
+      const coinType = item.coin_code.replace('usdt', '').toUpperCase()
+      const isShowCoin = showCoinType.find((coin) => coin == coinType)
+      if (isShowCoin) {
+        filterCoin.push(item)
+      }
+    }
+    setShowCoinListArray(filterCoin)
+  }, [coinCost])
 
   const handleSubmit = async () => {}
 
@@ -55,54 +84,74 @@ function Home(props) {
           </Pressable>
         </Right>
       </Header>
-      <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
-        <View
-          style={{ height: 357, backgroundColor: Colors.bgChart, borderRadius: componentProps.borderRadius }}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-            <View>
-              <Pressable
-                style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
-                onPress={() => navigation.navigate(screenName.Invite)}
-              >
-                <AntDesign name="smileo" size={24} color="white" />
-              </Pressable>
-              <Text
-                style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}
-              >
-                邀請
-              </Text>
-            </View>
-            <View>
-              <Pressable
-                style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
-                onPress={() => navigation.navigate(screenName.Community)}
-              >
-                <MaterialIcons name="groups" size={24} color="white" />
-              </Pressable>
-              <Text
-                style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}
-              >
-                社區
-              </Text>
-            </View>
-            <View>
-              <Pressable
-                style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
-                onPress={() => navigation.navigate(screenName.ApiScreen)}
-              >
-                <MaterialCommunityIcons name="api" size={24} color="white" />
-              </Pressable>
-              <Text
-                style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}
-              >
-                API
-              </Text>
-            </View>
+      <View style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+          <View>
+            <Pressable
+              style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
+              onPress={() => navigation.navigate(screenName.Invite)}
+            >
+              <AntDesign name="smileo" size={24} color="white" />
+            </Pressable>
+            <Text style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}>
+              邀請
+            </Text>
           </View>
-          <Spacer size={100} flex={0} />
+          <View>
+            <Pressable
+              style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
+              onPress={() => navigation.navigate(screenName.Community)}
+            >
+              <MaterialIcons name="groups" size={24} color="white" />
+            </Pressable>
+            <Text style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}>
+              社區
+            </Text>
+          </View>
+          <View>
+            <Pressable
+              style={{ backgroundColor: Colors.circleBgColor, padding: 20, borderRadius: 100 }}
+              onPress={() => navigation.navigate(screenName.ApiScreen)}
+            >
+              <MaterialCommunityIcons name="api" size={24} color="white" />
+            </Pressable>
+            <Text style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}>
+              API
+            </Text>
+          </View>
         </View>
-      </ScrollView>
+        <Spacer size={64} flex={0} />
+        <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
+          <Text style={[componentProps.fontH3, { color: Colors.mainColor }]}>行情</Text>
+          <Spacer size={16} flex={0} />
+          {showCoinListArray &&
+            showCoinListArray.map((item, index) => {
+              const coinType = item.coin_code.replace('usdt', '').toUpperCase()
+              return (
+                <View
+                  key={index}
+                  style={{
+                    paddingVertical: 12,
+                    paddingTop: 24,
+                    borderBottomColor: Colors.grayText,
+                    borderBottomWidth: 0.5,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text style={componentProps.fontBodySmall6}>
+                    <Text style={[componentProps.fontH4Medium, { color: Colors.brandText }]}>
+                      {coinType}{' '}
+                    </Text>
+                    / USDT
+                  </Text>
+                  <Text style={componentProps.fontH5}>{parseFloat(item.cost).toFixed(4)}</Text>
+                </View>
+              )
+            })}
+          <Spacer size={350} flex={0} />
+        </ScrollView>
+      </View>
     </Container>
   )
 }

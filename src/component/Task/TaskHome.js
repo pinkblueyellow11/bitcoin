@@ -34,12 +34,14 @@ import { MaterialCommunityIcons, AntDesign, MaterialIcons } from '@expo/vector-i
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskHome(props) {
-  const { robotArray, errorMsg, setErrorMsg } = props
+  const { robotArray, api_key_setted, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
 
   const windowWidth = useWindowDimensions().width
 
-  const handleSubmit = async () => {}
+  const handleSubmit = async () => { }
+
+  console.log('robotArray', robotArray)
 
   return (
     <Container style={{}}>
@@ -50,7 +52,18 @@ function TaskHome(props) {
           <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>任務</Text>
         </Body>
         <Right>
-          <Pressable onPress={() => navigation.navigate(screenName.ChooseCoinType)}>
+          <Pressable
+            onPress={() => {
+              if (api_key_setted) navigation.navigate(screenName.ChooseCoinType)
+              else
+                Alert.alert('請先至主頁設定API KEY', '', [
+                  {
+                    text: '確定',
+                    onPress: () => { },
+                  },
+                ])
+            }}
+          >
             <Text style={{ color: Colors.mainColor }}>新建任務</Text>
           </Pressable>
         </Right>
@@ -71,72 +84,96 @@ function TaskHome(props) {
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <View style={[styles.boxView, { marginRight: 16 }]}>
-            <Text style={styles.boxText1}>今日盈利</Text>
+            <Text style={styles.boxText1}>USDT餘額</Text>
             <Spacer size={10} flex={0} />
             <Text style={styles.boxText2}>0</Text>
           </View>
           <View style={[styles.boxView, { marginLeft: 12 }]}>
-            <Text style={styles.boxText1}>總盈利</Text>
+            <Text style={styles.boxText1}>總持倉</Text>
             <Spacer size={10} flex={0} />
             <Text style={styles.boxText2}>0</Text>
           </View>
         </View>
         <Spacer size={32} flex={0} />
-        {robotArray &&
+        {robotArray && robotArray.length > 0 &&
           robotArray.map((value, index) => {
-            console.log('value', value)
-            const coinType = value.coin_code.replace('usdt', '').toUpperCase()
+            //console.log('value', value)
+            const catchIndex = value.length - 1
+            const coinType = value[catchIndex]?.coin_code.replace('usdt', '').toUpperCase()
             return (
               <View key={index}>
                 <Spacer size={12} flex={0} />
-                <View style={styles.listTitleBox}>
-                  <Text style={styles.listTitle}>{coinType}/USDT</Text>
-                  <Text style={{ color: value.enabled ? '#11AB2C' : '#FF3B30' }}>
+                <View style={styles.listTitleBox} >
+                  <Pressable onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value[catchIndex] })}>
+                    <Text style={styles.listTitle}>{coinType}/USDT</Text>
+                  </Pressable>
+                  <Text style={{ color: value[catchIndex]?.enabled ? '#11AB2C' : '#FF3B30' }}>
                     <Text style={{ color: Colors.grayText3 }}>狀態：</Text>
-                    {value.enabled ? '開啟' : '關閉'}
+                    {value[0]?.enabled ? '開啟' : '關閉'}
                   </Text>
                 </View>
                 <View style={styles.listBox}>
                   <View style={{ flexDirection: 'row' }}>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉量</Text>
-                      <Text style={styles.listNumber}>0</Text>
+                      <Text style={styles.listNumber}>
+                        {value[0]?.purchase_amount && <Text>{parseFloat(value[catchIndex]?.purchase_amount).toFixed(7)}</Text>}
+                      </Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉均價</Text>
-                      <Text style={styles.listNumber}>0</Text>
+                      <Text style={styles.listNumber}>
+                        {value[0]?.robot_trans_info.purchase_average && (
+                          <Text>{parseFloat(value[catchIndex]?.robot_trans_info.purchase_average).toFixed(7)}</Text>
+                        )}
+                      </Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉總額</Text>
-                      <Text style={styles.listNumber}>0</Text>
+                      <Text style={styles.listNumber}>
+                        {value[0]?.usdt_purchase_amount && (
+                          <Text>{parseFloat(value[catchIndex]?.usdt_purchase_amount).toFixed(7)}</Text>
+                        )}
+                      </Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>總盈利</Text>
-                      <Text style={styles.listNumber}>0</Text>
+                      <Text style={styles.listNumber}>-</Text>
                     </View>
                   </View>
                   <Spacer size={20} flex={0} />
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>當前價格</Text>
-                      <Text style={styles.listNumber}>0</Text>
+                      <Text style={styles.listNumber}>-</Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉單數</Text>
-                      <Text style={styles.listNumber}>0</Text>
+                      <Text style={styles.listNumber}>-</Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>盈虧幅</Text>
-                      <Text style={styles.listNumber}>0%</Text>
+                      <Text style={styles.listNumber}>-%</Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>盈虧</Text>
-                      <Text style={styles.listNumber}>0</Text>
+                      <Text style={styles.listNumber}>-</Text>
                     </View>
                   </View>
                 </View>
                 <Spacer size={8} flex={0} />
-                <Pressable
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                  <Pressable>
+                    <Text style={styles.listButtonText}>暫停買入</Text>
+                  </Pressable>
+                  <Pressable >
+                    <Text style={styles.listButtonText}>一鍵加倉</Text>
+                  </Pressable>
+                  <Pressable>
+                    <Text style={styles.listButtonText}>一鍵平倉</Text>
+                  </Pressable>
+                </View>
+                {/* <Pressable
                   onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value })}
                   style={{ alignSelf: 'flex-end', flexDirection: 'row' }}
                 >
@@ -144,7 +181,7 @@ function TaskHome(props) {
                   <View style={{ alignSelf: 'flex-end' }}>
                     <AntDesign name="arrowright" size={24} color={Colors.mainColor} />
                   </View>
-                </Pressable>
+                </Pressable> */}
                 <Spacer size={30} flex={0} />
                 <View style={{ height: 0.5, backgroundColor: Colors.grayText2 }} />
               </View>
@@ -230,6 +267,10 @@ const styles = StyleSheet.create({
   listNumber: {
     ...componentProps.fontBody1Medium,
     marginTop: 8,
+  },
+  listButtonText: {
+    ...componentProps.fontBody1Medium,
+    color: Colors.brandText,
   },
 })
 
