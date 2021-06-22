@@ -13,4 +13,5 @@ export const ERROR_STATUS = {
   601004: 'Fail to fetch account id',
   601012: 'USDT amount is not enough',
   101004: 'Referrer does not exist',
+  601006: 'trade account balance is not enough',
 }

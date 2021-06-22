@@ -18,6 +18,7 @@ import {
   Linking,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Spinner from 'react-native-loading-spinner-overlay'
 import componentProps from '../../constant/componentProps'
 import { useNavigation } from '@react-navigation/native'
 import screenName from '../../constant/screenName'
@@ -34,14 +35,45 @@ import { MaterialCommunityIcons, AntDesign, MaterialIcons } from '@expo/vector-i
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskHome(props) {
-  const { robotArray, api_key_setted, errorMsg, setErrorMsg } = props
+  const { closeRobot, closeRobotPurchase, robotArray, api_key_setted, coinCurrentPrice, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
   const navigation = useNavigation()
 
   const windowWidth = useWindowDimensions().width
 
   const handleSubmit = async () => { }
 
-  console.log('robotArray', robotArray)
+
+  const handleCloseRobot = async (id, enabled) => {
+    const body = {
+      enabled: enabled ? 0 : 1,
+    }
+    const result = await closeRobot(id, body)
+    if (result.message) {
+      setErrorMsg(null)
+      Alert.alert('更改失敗', '', [
+        {
+          text: '確定',
+          onPress: () => { },
+        },
+      ])
+    }
+  }
+
+  const handleCloseRobotPurchase = async (id, enabled) => {
+    const body = {
+      purchase_enabled: enabled ? 0 : 1,
+    }
+    const result = await closeRobotPurchase(id, body)
+    if (result.message) {
+      setErrorMsg(null)
+      Alert.alert('更改失敗', '', [
+        {
+          text: '確定',
+          onPress: () => { },
+        },
+      ])
+    }
+  }
 
   return (
     <Container style={{}}>
@@ -97,9 +129,13 @@ function TaskHome(props) {
         <Spacer size={32} flex={0} />
         {robotArray && robotArray.length > 0 &&
           robotArray.map((value, index) => {
-            //console.log('value', value)
             const catchIndex = value.length - 1
             const coinType = value[catchIndex]?.coin_code.replace('usdt', '').toUpperCase()
+            const currentPrice = coinCurrentPrice.filter((res) => res.coin_code === value[catchIndex]?.coin_code)
+            //持倉均價
+            const averagePositionPrice = value[catchIndex]?.robot_trans_info.purchase_average ? parseFloat(value[catchIndex].robot_trans_info.purchase_average).toFixed(7) : null
+            // 盈虧 = 持倉均價 - 當前價格
+            const profitAndLoss = currentPrice && averagePositionPrice ? averagePositionPrice - parseFloat(currentPrice[0].cost).toFixed(4) : '-'
             return (
               <View key={index}>
                 <Spacer size={12} flex={0} />
@@ -107,24 +143,26 @@ function TaskHome(props) {
                   <Pressable onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value[catchIndex] })}>
                     <Text style={styles.listTitle}>{coinType}/USDT</Text>
                   </Pressable>
-                  <Text style={{ color: value[catchIndex]?.enabled ? '#11AB2C' : '#FF3B30' }}>
-                    <Text style={{ color: Colors.grayText3 }}>狀態：</Text>
-                    {value[0]?.enabled ? '開啟' : '關閉'}
-                  </Text>
+                  <Pressable onPress={() => handleCloseRobot(value[catchIndex].robot_id, value[catchIndex]?.enabled)}>
+                    <Text style={{ color: value[catchIndex]?.enabled ? '#11AB2C' : '#FF3B30' }}>
+                      <Text style={{ color: Colors.grayText3 }}>狀態：</Text>
+                      {value[0]?.enabled ? '開啟' : '關閉'}
+                    </Text>
+                  </Pressable>
                 </View>
-                <View style={styles.listBox}>
+                <Pressable style={styles.listBox} onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value[catchIndex] })}>
                   <View style={{ flexDirection: 'row' }}>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉量</Text>
                       <Text style={styles.listNumber}>
-                        {value[0]?.purchase_amount && <Text>{parseFloat(value[catchIndex]?.purchase_amount).toFixed(7)}</Text>}
+                        {value[catchIndex]?.purchase_amount && <Text>{parseFloat(value[catchIndex]?.purchase_amount).toFixed(7)}</Text>}
                       </Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉均價</Text>
                       <Text style={styles.listNumber}>
-                        {value[0]?.robot_trans_info.purchase_average && (
-                          <Text>{parseFloat(value[catchIndex]?.robot_trans_info.purchase_average).toFixed(7)}</Text>
+                        {averagePositionPrice && (
+                          <Text>{averagePositionPrice}</Text>
                         )}
                       </Text>
                     </View>
@@ -145,11 +183,13 @@ function TaskHome(props) {
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>當前價格</Text>
-                      <Text style={styles.listNumber}>-</Text>
+                      {Array.isArray(currentPrice) && currentPrice.length > 0 && <Text style={styles.listNumber}>{parseFloat(currentPrice[0].cost).toFixed(4)}</Text>}
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉單數</Text>
-                      <Text style={styles.listNumber}>-</Text>
+                      <Text style={styles.listNumber}>{value[catchIndex]?.robot_trans_info && (
+                        <Text>{parseInt(value[catchIndex]?.robot_trans_info.purchase_count)}</Text>
+                      )}</Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>盈虧幅</Text>
@@ -157,16 +197,16 @@ function TaskHome(props) {
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>盈虧</Text>
-                      <Text style={styles.listNumber}>-</Text>
+                      {profitAndLoss && <Text style={styles.listNumber}>{profitAndLoss}</Text>}
                     </View>
                   </View>
-                </View>
+                </Pressable>
                 <Spacer size={8} flex={0} />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                  <Pressable>
-                    <Text style={styles.listButtonText}>暫停買入</Text>
+                  <Pressable onPress={() => handleCloseRobotPurchase(value[catchIndex].robot_id, value[catchIndex]?.purchase_enabled)}>
+                    <Text style={styles.listButtonText}>{value[catchIndex].purchase_enabled ? '暫停買入' : '恢復買入'}</Text>
                   </Pressable>
-                  <Pressable >
+                  <Pressable onPress={() => navigation.navigate(screenName.CoverUp, { robot_id: value[catchIndex]?.robot_id })}>
                     <Text style={styles.listButtonText}>一鍵加倉</Text>
                   </Pressable>
                   <Pressable>
@@ -208,6 +248,7 @@ function TaskHome(props) {
 
         <Spacer size={100} flex={0} />
       </ScrollView>
+      <Spinner visible={isWaiting} />
     </Container>
   )
 }

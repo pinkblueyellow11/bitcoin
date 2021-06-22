@@ -30,4 +30,5 @@ export default {
   ReCharge: 'ReCharge',
   Withdrawal: 'Withdrawal',
   ReChargeUpdate: 'ReChargeUpdate',
+  CoverUp: 'CoverUp',
 }

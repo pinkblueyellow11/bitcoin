@@ -7,7 +7,7 @@ import { ERROR_STATUS } from '../../constant/signIn'
 import Constants from 'expo-constants'
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const { taskInfo } = props.route.params
   const [taskDetail, setTaskDetail] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
@@ -22,8 +22,8 @@ export default function LoginContainer(props) {
     try {
       const result = await agent.bot.getRobotDetail(params)
       setIsWaiting(false)
-      console.log('result', result)
-      setTaskDetail(result.data)
+      setTaskDetail(result.data[0])
+      setRefreshBot(true)
     } catch (error) {
       console.log('[container/Task/TaskDetail] getRobotDetail error', error)
       //setErrorMsg(ERROR_STATUS[error.status])
@@ -32,11 +32,27 @@ export default function LoginContainer(props) {
     }
   }
 
+  const closeRobot = async (id, body) => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.closeRobot(id, body)
+      setIsWaiting(false)
+      getRobotDetail(taskInfo.robot_id)
+      return result
+    } catch (error) {
+      console.log('[container/Task/TaskDetail] closeRobot error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
   useEffect(() => {
+    console.log('taskInfo', taskInfo)
     if (taskInfo) getRobotDetail(taskInfo.robot_id)
   }, [taskInfo])
 
   return (
-    <TaskDetail taskDetail={taskDetail} taskInfo={taskInfo} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+    <TaskDetail closeRobot={closeRobot} taskDetail={taskDetail} taskInfo={taskInfo} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} setIsWaiting={setIsWaiting} />
   )
 }

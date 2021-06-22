@@ -20,6 +20,15 @@ export default {
       return { ...state, refreshBot: payload }
     },
 
+    /**
+ * @param {obj} state
+ * @param {obj} payload
+ */
+    setCoinCurrentPrice(state, payload) {
+      return { ...state, coinCurrentPrice: payload }
+    },
+
+
     clear() {
       return initialState
     },

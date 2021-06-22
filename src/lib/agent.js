@@ -47,6 +47,16 @@ const bot = {
   drawCoin: (body) => {
     return axios.post('/usdt/withdraw', body)
   },
+  closeRobot: (robot_id, body) => {
+    return axios.post('/user/robots/' + robot_id, body)
+  },
+  closeRobotPurchase: (robot_id, body) => {
+    return axios.post('/user/robots/' + robot_id + '/purchase', body)
+  },
+  manualPurchase: (robot_id, body) => {
+    return axios.post('/user/robots/' + robot_id + '/manual-purchase', body)
+  },
+
 }
 
 const Account = {

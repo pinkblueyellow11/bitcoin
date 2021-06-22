@@ -7,13 +7,15 @@ import { ERROR_STATUS } from '../../constant/signIn'
 import Constants from 'expo-constants'
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const [coinCost, setCoinCost] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
   // redux
   const dispatch = useDispatch()
   const getUser = () => dispatch.auth.getUser()
+  const setCoinCurrentPrice = (value) => dispatch.bot.setCoinCurrentPrice(value)
+
 
   const getCoinCost = async () => {
     setIsWaiting(true)
@@ -22,6 +24,7 @@ export default function LoginContainer(props) {
       setIsWaiting(false)
       console.log('result', result)
       setCoinCost(result.data)
+      setCoinCurrentPrice(result.data)
       //return result
     } catch (error) {
       console.log('[container/Home] getCoinCost error', error)

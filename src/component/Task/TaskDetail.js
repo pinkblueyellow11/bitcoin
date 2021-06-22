@@ -18,6 +18,7 @@ import {
   Linking,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Spinner from 'react-native-loading-spinner-overlay'
 import componentProps from '../../constant/componentProps'
 import { useNavigation } from '@react-navigation/native'
 import screenName from '../../constant/screenName'
@@ -34,19 +35,37 @@ import { Ionicons, AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-i
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskDetail(props) {
-  const { taskDetail, errorMsg, setErrorMsg } = props
+  const { taskDetail, closeRobot, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
   const navigation = useNavigation()
 
   const [coinType, setCoinType] = useState('')
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(null)
 
   useEffect(() => {
     if (!taskDetail) return
+    setIsWaiting(true)
     setCoinType(taskDetail.coin_code.replace('usdt', '').toUpperCase())
-    if (!taskDetail.enabled) setIsOpen(false)
+    setIsOpen(!!taskDetail.enabled)
+    setIsWaiting(false)
   }, [taskDetail])
 
-  const handleSubmit = async () => {}
+  const handleSubmit = async () => { }
+
+  const handleCloseRobot = async () => {
+    const body = {
+      enabled: isOpen ? 0 : 1,
+    }
+    const result = await closeRobot(taskDetail.robot_id, body)
+    if (result.message) {
+      setErrorMsg(null)
+      Alert.alert('更改失敗', '', [
+        {
+          text: '確定',
+          onPress: () => { },
+        },
+      ])
+    }
+  }
 
   return (
     <Container style={{}}>
@@ -71,7 +90,7 @@ function TaskDetail(props) {
           <Text style={styles.itemTitle}>狀態</Text>
           <View style={{ flexDirection: 'row', width: '85%' }}>
             <Pressable
-              onPress={() => setIsOpen(false)}
+              onPress={handleCloseRobot}
               style={[
                 styles.typeBoxOne,
                 {
@@ -82,7 +101,7 @@ function TaskDetail(props) {
               <Text style={[styles.typeBoxText, { color: isOpen ? Colors.grayText3 : 'white' }]}>關閉</Text>
             </Pressable>
             <Pressable
-              onPress={() => setIsOpen(true)}
+              onPress={handleCloseRobot}
               style={[
                 styles.typeBoxTwo,
                 {
@@ -100,19 +119,19 @@ function TaskDetail(props) {
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>持倉總額</Text>
               <Text style={styles.listNumber}>
-                {taskDetail && <Text>{parseFloat(taskDetail.usdt_purchase_amount).toFixed(2)}</Text>}
+                {taskDetail && <Text>{parseFloat(taskDetail?.usdt_purchase_amount).toFixed(2)}</Text>}
               </Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>持倉量</Text>
               <Text style={styles.listNumber}>
-                {taskDetail && <Text>{parseFloat(taskDetail.purchase_amount).toFixed(2)}</Text>}
+                {taskDetail && <Text>{parseFloat(taskDetail?.purchase_amount).toFixed(2)}</Text>}
               </Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>持倉均價</Text>
               <Text style={styles.listNumber}>
-                {taskDetail && taskDetail.robot_trans_info.purchase_average && (
+                {taskDetail && taskDetail?.robot_trans_info?.purchase_average && (
                   <Text>{parseFloat(taskDetail.robot_trans_info.purchase_average).toFixed(2)}</Text>
                 )}
               </Text>
@@ -123,17 +142,17 @@ function TaskDetail(props) {
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>當前價格</Text>
               <Text style={styles.listNumber}>
-                {taskDetail && <Text>{parseFloat(taskDetail.coin_cost).toFixed(2)}</Text>}
+                {taskDetail && <Text>{parseFloat(taskDetail?.original_cost).toFixed(4)}</Text>}
               </Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>當前補倉</Text>
-              <Text style={styles.listNumber}>0</Text>
+              <Text style={styles.listNumber}>-</Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>交易次數</Text>
               <Text style={styles.listNumber}>
-                {taskDetail && <Text>{parseFloat(taskDetail.robot_trans_info.purchase_count)}</Text>}
+                {taskDetail && <Text>{parseFloat(taskDetail?.robot_trans_info?.purchase_count)}</Text>}
               </Text>
             </View>
           </View>
@@ -147,11 +166,11 @@ function TaskDetail(props) {
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>盈虧幅</Text>
-              <Text style={[styles.listNumber, { color: Colors.redText }]}>0%</Text>
+              <Text style={[styles.listNumber, { color: Colors.redText }]}>-%</Text>
             </View>
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>當前盈虧</Text>
-              <Text style={[styles.listNumber, { color: Colors.redText }]}>0</Text>
+              <Text style={[styles.listNumber, { color: Colors.redText }]}>-</Text>
             </View>
           </View>
         </View>
@@ -162,7 +181,7 @@ function TaskDetail(props) {
           <View style={styles.listBox2Row}>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>做單數量</Text>
-              {taskDetail && <Text>{taskDetail.robot_setting.purchase_target_times}</Text>}
+              {taskDetail && <Text>{taskDetail?.robot_setting?.purchase_target_times}</Text>}
             </View>
             <View style={styles.listBox2RowBox}>
               <Text style={styles.listBox2RowBoxText}>首單金額</Text>
@@ -208,22 +227,22 @@ function TaskDetail(props) {
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
           <View>
-            <Pressable style={styles.circleButton} onPress={() => {}}>
+            <Pressable style={styles.circleButton} onPress={() => { }}>
               <AntDesign name="edit" size={24} color="white" />
             </Pressable>
             <Text style={styles.circleButtonText}>調整策略</Text>
           </View>
           <View>
-            <Pressable style={styles.circleButton} onPress={() => {}}>
+            <Pressable style={styles.circleButton} onPress={() => { }}>
               <FontAwesome5 name="grip-lines" size={24} color="white" />
             </Pressable>
-            <Text style={styles.circleButtonText}>一建平倉</Text>
+            <Text style={styles.circleButtonText}>一鍵平倉</Text>
           </View>
           <View>
-            <Pressable style={styles.circleButton} onPress={() => {}}>
+            <Pressable style={styles.circleButton} onPress={() => navigation.navigate(screenName.CoverUp, { robot_id: taskDetail.robot_id })}>
               <MaterialIcons name="attach-money" size={24} color="white" />
             </Pressable>
-            <Text style={styles.circleButtonText}>一建補倉</Text>
+            <Text style={styles.circleButtonText}>一鍵補倉</Text>
           </View>
         </View>
         <Spacer size={64} flex={0} />
@@ -242,6 +261,7 @@ function TaskDetail(props) {
         </Pressable>
         <Spacer size={100} flex={0} />
       </ScrollView>
+      <Spinner visible={isWaiting} />
     </Container>
   )
 }

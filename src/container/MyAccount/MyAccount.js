@@ -5,7 +5,7 @@ import { connect, useSelector, useDispatch } from 'react-redux'
 import agent, { setAxiosTokens, clearAxiosTokens } from '../../lib/agent'
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
   const [userInfo, setUserInfo] = useState(null)
@@ -17,7 +17,8 @@ export default function LoginContainer(props) {
   const logOut = () => {
     dispatch.register.setToken(null)
   }
-
+  console.log('account', account)
+  console.log('recommend_code', recommend_code)
   return (
     <MyAccount
       account={account}

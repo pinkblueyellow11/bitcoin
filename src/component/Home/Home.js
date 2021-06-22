@@ -65,10 +65,11 @@ function Home(props) {
         filterCoin.push(item)
       }
     }
+    console.log('filterCoin', filterCoin)
     setShowCoinListArray(filterCoin)
   }, [coinCost])
 
-  const handleSubmit = async () => {}
+  const handleSubmit = async () => { }
 
   return (
     <Container style={{}}>
