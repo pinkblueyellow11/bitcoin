@@ -46,7 +46,7 @@ const INPUT_FIELD = {
 }
 
 export default function SignIn(props) {
-  const { register, sendEmail, isWaiting, errorMsg, setErrorMsg } = props
+  const { id, register, sendEmail, isWaiting, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
   const [emailAccount, setEmailAccount] = useState('')
   const [verifyCode, setVerifyCode] = useState('')
@@ -152,6 +152,11 @@ export default function SignIn(props) {
     ])
     setErrorMsg(null)
   }, [errorMsg])
+
+  useEffect(() => {
+    if (!id) return
+    setIntroducCode(id)
+  }, [id])
 
   return (
     <Container>

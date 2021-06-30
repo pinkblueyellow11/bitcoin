@@ -30,44 +30,71 @@ import { FONT_WEIGHT } from '../../constant/componentProps/typography'
 import config from '../../constant/config'
 import Carousel from 'react-native-snap-carousel'
 import { MaterialCommunityIcons, AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { useInterval } from '../../lib/react'
 
 const showCoinType = [
-  'TC',
+  'BTC',
   'ETH',
-  'BCH',
-  'LTC',
   'ADA',
-  'XRP',
-  'DOGE',
   'DOT',
   'LINK',
   'UNI',
+  'BNB',
+  'XRP',
+  'BCH',
+  'LTC',
+  'DOGE',
   'SOL',
-  'ETC',
-  'TRX',
-  'AAVE',
   'FTT',
+  'AAVE',
+  'TRX'
 ]
+const arrayIndex = {
+  'BTC': 0,
+  'ETH': 1,
+  'ADA': 2,
+  'DOT': 3,
+  'LINK': 4,
+  'UNI': 5,
+  'BNB': 6,
+  'XRP': 7,
+  'BCH': 8,
+  'LTC': 9,
+  'DOGE': 10,
+  'SOL': 11,
+  'FTT': 12,
+  'AAVE': 13,
+  'TRX': 14
+}
 
 function Home(props) {
-  const { coinCost, errorMsg, setErrorMsg } = props
+  const { coinCost, getCoinCost, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
 
   const [showCoinListArray, setShowCoinListArray] = useState(null)
+  const [showCoinListArray2, setShowCoinListArray2] = useState(null)
 
   useEffect(() => {
     if (!coinCost || !Array.isArray(coinCost)) return
-    const filterCoin = []
+    const filterCoin = ['', '', '', '', '', '', '', '', '', '', '', '']
+
     for (const item of coinCost) {
       const coinType = item.coin_code.replace('usdt', '').toUpperCase()
       const isShowCoin = showCoinType.find((coin) => coin == coinType)
       if (isShowCoin) {
-        filterCoin.push(item)
+        filterCoin[arrayIndex[coinType]] = item
       }
     }
-    console.log('filterCoin', filterCoin)
+    //console.log('filterCoin2', filterCoin2)
     setShowCoinListArray(filterCoin)
   }, [coinCost])
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      getCoinCost();
+    }, 300000)
+    return () => clearInterval(timerId);
+  }, [])
 
   const handleSubmit = async () => { }
 
@@ -125,30 +152,32 @@ function Home(props) {
         <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
           <Text style={[componentProps.fontH3, { color: Colors.mainColor }]}>行情</Text>
           <Spacer size={16} flex={0} />
-          {showCoinListArray &&
+          {Array.isArray(showCoinListArray) && showCoinListArray.length > 0 &&
             showCoinListArray.map((item, index) => {
-              const coinType = item.coin_code.replace('usdt', '').toUpperCase()
-              return (
-                <View
-                  key={index}
-                  style={{
-                    paddingVertical: 12,
-                    paddingTop: 24,
-                    borderBottomColor: Colors.grayText,
-                    borderBottomWidth: 0.5,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Text style={componentProps.fontBodySmall6}>
-                    <Text style={[componentProps.fontH4Medium, { color: Colors.brandText }]}>
-                      {coinType}{' '}
+              let coinType = null
+              if (item !== '') coinType = item.coin_code.replace('usdt', '').toUpperCase()
+              return (item === '' ? <View></View>
+                : (
+                  <View
+                    key={index}
+                    style={{
+                      paddingVertical: 12,
+                      paddingTop: 24,
+                      borderBottomColor: Colors.grayText,
+                      borderBottomWidth: 0.5,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <Text style={componentProps.fontBodySmall6}>
+                      <Text style={[componentProps.fontH4Medium, { color: Colors.brandText }]}>
+                        {coinType}{' '}
+                      </Text>
+                      / USDT
                     </Text>
-                    / USDT
-                  </Text>
-                  <Text style={componentProps.fontH5}>{parseFloat(item.cost).toFixed(4)}</Text>
-                </View>
-              )
+                    <Text style={componentProps.fontH5}>{parseFloat(item.cost).toFixed(4)}</Text>
+                  </View>
+                ))
             })}
           <Spacer size={350} flex={0} />
         </ScrollView>

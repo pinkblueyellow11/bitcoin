@@ -32,12 +32,19 @@ import QRCode from 'react-native-qrcode-svg'
 const initialLayout = { width: Dimensions.get('window').width }
 
 function Invite(props) {
-  const { token, errorMsg, setErrorMsg } = props
+  const { recommend_code, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
 
-  const windowWidth = useWindowDimensions().width
+  const [qrCodeUrl, setQrCodeUrl] = useState('')
 
-  const handleSubmit = async () => {}
+
+  const handleSubmit = async () => { }
+
+  useEffect(() => {
+    if (!recommend_code) return
+    console.log('recommend_code', recommend_code)
+    setQrCodeUrl('yigg://sigIn/' + recommend_code)
+  }, [recommend_code])
 
   return (
     <Container style={{}}>
@@ -82,21 +89,21 @@ function Invite(props) {
         </View>
         <Spacer size={50} flex={0} />
         <View style={{ alignItems: 'center' }}>
-          <QRCode size={300} value="http://awesome.link.qr" />
+          {qrCodeUrl !== '' && <QRCode size={300} value={qrCodeUrl} />}
         </View>
         <Spacer size={32} flex={0} />
         <Button
           full
-          disabled={!token}
+          // disabled={!token}
           style={{
             borderRadius: componentProps.borderRadius,
             borderColor: Colors.mainColor,
             borderWidth: 1,
             //backgroundColor: Colors.brandPrimary,
           }}
-          onPress={() => {}}
+          onPress={() => { }}
         >
-          <Text style={[componentProps.fontBodySmall, { color: token ? 'white' : Colors.brandText }]}>
+          <Text style={[componentProps.fontBodySmall, { color: 'white' }]}>
             複製QRcode
           </Text>
         </Button>

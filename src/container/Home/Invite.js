@@ -7,11 +7,11 @@ import { ERROR_STATUS } from '../../constant/signIn'
 import Constants from 'expo-constants'
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
   // redux
-  const token = useSelector((state) => state.register.token)
+  const recommend_code = useSelector((state) => state.auth.recommend_code)
 
-  return <Invite token={token} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  return <Invite recommend_code={recommend_code} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
 }

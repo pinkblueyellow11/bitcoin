@@ -10,13 +10,13 @@ export const redirectToAppSetting = (type) => {
 
   switch (type) {
     case Permissions.CAMERA:
-      title = 'CMU 要使用你的相機進行拍攝，請至「設定」開啟'
+      title = '神通 要使用你的相機進行拍攝，請至「設定」開啟'
       break
     case Permissions.CAMERA_ROLL:
-      title = 'CMU 要存取你的照片，請至「設定」開啟'
+      title = '神通 要存取你的照片，請至「設定」開啟'
       break
     default:
-      title = '「CMU」需要開啟權限'
+      title = '「神通」需要開啟權限'
       break
   }
 

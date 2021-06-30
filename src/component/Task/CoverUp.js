@@ -39,6 +39,7 @@ export default function CoverUp(props) {
   } = props
   const navigation = useNavigation()
 
+  const [amountOfMarginCallError, setAmountOfMarginCallError] = useState(false)
   const [amountOfMarginCall, setAmountOfMarginCall] = useState('')
   const [focusedInput, setFocusedInput] = useState(null)
 
@@ -73,6 +74,10 @@ export default function CoverUp(props) {
     setErrorMsg(null)
   }, [errorMsg])
 
+  useEffect(() => {
+    console.log('amountOfMarginCallError', amountOfMarginCallError)
+  }, [amountOfMarginCallError])
+
   return (
     <Container>
       <Header
@@ -103,16 +108,25 @@ export default function CoverUp(props) {
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.amountOfMarginCall}>
             <Input
               style={styles.itemInput}
-              //placeholder={'輸入範圍 5~15 的正整數'}
+              placeholder={'輸入範圍大於等於10的正整數'}
               placeholderTextColor={Colors.placeholderTColor}
               value={amountOfMarginCall}
               keyboardType="number-pad"
-              onChangeText={setAmountOfMarginCall}
+              onChangeText={(text) => {
+                setAmountOfMarginCall(text)
+                if (text >= 10) setAmountOfMarginCallError(false)
+                else setAmountOfMarginCallError(true)
+              }}
               onFocus={() => setFocusedInput(INPUT_FIELD.amountOfMarginCall)}
               onBlur={() => { setFocusedInput(null) }}
             />
           </Item>
         </View>
+        {amountOfMarginCallError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            輸入範圍大於等於10的正整數
+          </Text>
+        )}
       </View>
       <Spinner visible={isWaiting} color={Colors.mainColor} />
     </Container>

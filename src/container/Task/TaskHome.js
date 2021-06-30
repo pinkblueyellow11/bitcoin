@@ -24,6 +24,7 @@ export default function LoginContainer(props) {
       const result = await agent.bot.getRobot()
       setIsWaiting(false)
       setRobotArray(result.data)
+      console.log('robotArray', robotArray)
       return result
     } catch (error) {
       console.log('[container/Task/TaskHome] getRobot error', error)
@@ -39,6 +40,7 @@ export default function LoginContainer(props) {
       const result = await agent.bot.closeRobot(id, body)
       setIsWaiting(false)
       getRobot()
+      console.log('closeRobot result', result)
       return result
     } catch (error) {
       console.log('[container/Task/TaskHome] closeRobot error', error)
@@ -63,6 +65,22 @@ export default function LoginContainer(props) {
     }
   }
 
+
+  const outOfWarehouse = async (id) => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.outOfWarehouse(id)
+      setIsWaiting(false)
+      getRobot()
+      return result
+    } catch (error) {
+      console.log('[container/Task/TaskHome] outOfWarehouse error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
   useEffect(() => {
     getRobot()
     if (refreshBot) setRefreshBot(false)
@@ -70,8 +88,10 @@ export default function LoginContainer(props) {
 
   return (
     <TaskHome
+      getRobot={getRobot}
       closeRobot={closeRobot}
       closeRobotPurchase={closeRobotPurchase}
+      outOfWarehouse={outOfWarehouse}
       robotArray={robotArray}
       api_key_setted={api_key_setted}
       coinCurrentPrice={coinCurrentPrice}

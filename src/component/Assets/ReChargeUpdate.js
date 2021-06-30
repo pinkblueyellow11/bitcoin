@@ -33,6 +33,8 @@ import { Ionicons, AntDesign, MaterialIcons } from '@expo/vector-icons'
 import QRCode from 'react-native-qrcode-svg'
 import ImagePicker from 'react-native-image-crop-picker'
 import { useActionSheet } from '@expo/react-native-action-sheet'
+import { askPermissionOriginal } from '../../lib/appSetting'
+import * as Permissions from 'expo-permissions'
 
 const INPUT_FIELD = {
   amount: 'amount',
@@ -50,12 +52,27 @@ function ReChargeUpdate(props) {
   const [profilePicBase64, setProfilePicBase64] = useState('')
   const [focusedInput, setFocusedInput] = useState(null)
   const [activeSubmit, setActiveSubmit] = useState(false)
+  const [amountError, setAmountError] = useState(false)
+  const [blocktrainTransIdError, setBlocktrainTransIdError] = useState(false)
+
+  useEffect(() => {
+    askPermissionOriginal(Permissions.CAMERA)
+  }, [])
 
   useEffect(() => {
     if (amount === '' || blocktrainTransId === '' || !profilePicBase64) {
       setActiveSubmit(false)
+      setAmountError(false)
+      setBlocktrainTransIdError(false)
+      if (amount <= 0 || (amount.toString()).indexOf(".") !== -1) {
+        setAmountError(true)
+      }
+      if ((blocktrainTransId.toString()).indexOf(".") !== -1) {
+        setBlocktrainTransIdError(true)
+      }
     } else {
       setActiveSubmit(true)
+      setAmountError(false)
     }
   }, [amount, blocktrainTransId, profilePicBase64])
 
@@ -79,24 +96,14 @@ function ReChargeUpdate(props) {
 
   const handleSelectImage = async (image) => {
     console.log('image', image)
-    Alert.alert('Image :',image)
     setProfilePicBase64(image.data)
-    // const formData = new FormData()
-    // formData.append('avatar', image.data)
-
-    // const result = await upUserImage(formData)
-    // if (!result.message) {
-    //   Alert.alert(translate('AccountAlert2'))
-    // } else {
-    //   Alert.alert(translate('AccountAlert3'))
-    // }
   }
 
   const openActionSheet = () => {
     const options = ['從相機拍照', '從相簿選擇', 'Cancel']
     const cancelButtonIndex = 2
     const actionSheetTitle = '上傳收據'
-    const imagePickerOptions = { width: 400, height: 400, cropping: true, includeBase64: true }
+    const imagePickerOptions = { width: 400, height: 400, cropping: false, includeBase64: true, compressImageQuality: 0.3 }
     showActionSheetWithOptions({ options, cancelButtonIndex, title: actionSheetTitle }, (buttonIndex) => {
       switch (buttonIndex) {
         case 0:
@@ -144,6 +151,12 @@ function ReChargeUpdate(props) {
             />
           </Item>
         </View>
+        <Spacer size={4} flex={0} />
+        {amountError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            請輸入正整數
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>區塊鏈交易ID</Text>
@@ -158,6 +171,12 @@ function ReChargeUpdate(props) {
             />
           </Item>
         </View>
+        <Spacer size={4} flex={0} />
+        {blocktrainTransIdError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            請輸入64個字元
+          </Text>
+        )}
         <Spacer size={16} flex={0} />
         <Pressable
           onPress={openActionSheet}

@@ -9,17 +9,16 @@ import Constants from 'expo-constants'
 const INVALID_TOKEN = 401002
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
+  const [usdtTrans, setUsdtTrans] = useState(null)
 
   const drawCoin = async (body) => {
     setIsWaiting(true)
     try {
-      console.log('body', body)
       const result = await agent.bot.drawCoin(body)
       setIsWaiting(false)
-      console.log('result', result)
       //return result
     } catch (error) {
       console.log('[container/Home] getCoinCost error', error)
@@ -29,5 +28,24 @@ export default function LoginContainer(props) {
     }
   }
 
-  return <Withdrawal drawCoin={drawCoin} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  const getUsdtTrans = async () => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.getUsdtTrans()
+      setIsWaiting(false)
+      setUsdtTrans(result.data)
+    } catch (error) {
+      console.log('[container/Assets/Withdrawal] getUsdtTrans error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
+  useEffect(() => {
+    console.log('執行 getUsdtTrans')
+    getUsdtTrans()
+  }, [])
+
+  return <Withdrawal usdtTrans={usdtTrans} drawCoin={drawCoin} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
 }

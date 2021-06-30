@@ -36,7 +36,8 @@ import StyleguideToast from './component/Styleguide/Toast'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
-export default function Navigation() {
+export default function Navigation(props) {
+  console.log('Navigation props', props)
   // redux
   const token = useSelector((state) => state.register.token)
   const [isLogIn, setIsLogIn] = useState(false)
@@ -111,7 +112,7 @@ export default function Navigation() {
           name={screentName.Assets}
           component={Assets}
           options={{
-            tabBarLabel: '燃料',
+            tabBarLabel: '資金',
             tabBarIcon: ({ color, size }) => <Ionicons name="wallet-outline" size={size} color={color} />,
           }}
         />
@@ -120,7 +121,15 @@ export default function Navigation() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={{
+      prefixes: ['yigg://'],
+      config: {
+        screens: {
+          SignIn: 'sigIn/:id',
+        },
+      },
+    }
+    } >
       <Stack.Navigator>
         {isLogIn ? (
           <>
@@ -216,6 +225,6 @@ export default function Navigation() {
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
-    </NavigationContainer>
+    </ NavigationContainer>
   )
 }

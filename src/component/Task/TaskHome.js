@@ -30,15 +30,17 @@ import Spacer from '../UI/Spacer'
 import { FONT_WEIGHT } from '../../constant/componentProps/typography'
 import config from '../../constant/config'
 import Carousel from 'react-native-snap-carousel'
-import { MaterialCommunityIcons, AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskHome(props) {
-  const { closeRobot, closeRobotPurchase, robotArray, api_key_setted, coinCurrentPrice, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
+  const { getRobot, closeRobot, closeRobotPurchase, outOfWarehouse, robotArray, api_key_setted, coinCurrentPrice, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
   const navigation = useNavigation()
 
-  const windowWidth = useWindowDimensions().width
+  const [totalPosition, setTotalPosition] = useState(null)
+  const [totalProfitArrayList, setTotalProfitArrayList] = useState(null)
+
 
   const handleSubmit = async () => { }
 
@@ -74,6 +76,48 @@ function TaskHome(props) {
       ])
     }
   }
+
+  const handleOutOfWarehouse = async (id) => {
+    const result = await outOfWarehouse(id)
+  }
+
+  useEffect(() => {
+    if (errorMsg !== null) {
+      console.log('errorMsg', errorMsg)
+      Alert.alert(errorMsg, '', [
+        {
+          text: '確定',
+          onPress: () => { },
+        },
+      ])
+      setErrorMsg(null)
+    }
+  }, [errorMsg])
+
+  useEffect(() => {
+    if (!robotArray) return
+    let total = 0
+    let totalProfitArray = []
+    console.log('robotArray', robotArray)
+    for (const item of robotArray) {
+      if (item[0].enabled) total += parseFloat(item[0]?.usdt_purchase_amount)
+      let totalProfit = 0
+      item.map((value) => {
+        if (parseFloat(value.profit) > 0)
+          totalProfit += parseFloat(value.profit)
+      })
+      totalProfitArray.push(totalProfit.toFixed(4))
+    }
+    setTotalPosition(total)
+    setTotalProfitArrayList(totalProfitArray)
+  }, [robotArray])
+
+  // useEffect(() => {
+  //   const timerId = setInterval(() => {
+  //     getRobot()
+  //   }, 300000)
+  //   return () => clearInterval(timerId);
+  // }, [])
 
   return (
     <Container style={{}}>
@@ -123,93 +167,147 @@ function TaskHome(props) {
           <View style={[styles.boxView, { marginLeft: 12 }]}>
             <Text style={styles.boxText1}>總持倉</Text>
             <Spacer size={10} flex={0} />
-            <Text style={styles.boxText2}>0</Text>
+            {!!totalPosition && <Text style={styles.boxText2}>{totalPosition}</Text>}
           </View>
         </View>
         <Spacer size={32} flex={0} />
+        <Pressable onPress={() => getRobot()} style={{ alignItems: 'flex-end' }}>
+          <Feather name="refresh-ccw" size={20} color={Colors.brandText} />
+        </Pressable>
+        <Spacer size={8} flex={0} />
         {robotArray && robotArray.length > 0 &&
           robotArray.map((value, index) => {
             const catchIndex = value.length - 1
-            const coinType = value[catchIndex]?.coin_code.replace('usdt', '').toUpperCase()
-            const currentPrice = coinCurrentPrice.filter((res) => res.coin_code === value[catchIndex]?.coin_code)
+            const coinType = value[0]?.coin_code.replace('usdt', '').toUpperCase()
+            const currentPriceFilter = coinCurrentPrice.filter((res) => res.coin_code === value[0]?.coin_code)
+            //持倉量
+            const purchaseAmount = value[0]?.purchase_amount ? parseFloat(parseFloat(value[0]?.purchase_amount).toFixed(4)) : null
+            //當前價格
+            const currentPrice = currentPriceFilter[0]?.cost ? parseFloat(parseFloat(currentPriceFilter[0]?.cost).toFixed(4)) : null
             //持倉均價
-            const averagePositionPrice = value[catchIndex]?.robot_trans_info.purchase_average ? parseFloat(value[catchIndex].robot_trans_info.purchase_average).toFixed(7) : null
-            // 盈虧 = 持倉均價 - 當前價格
-            const profitAndLoss = currentPrice && averagePositionPrice ? averagePositionPrice - parseFloat(currentPrice[0].cost).toFixed(4) : '-'
+            const averagePositionPrice = value[0]?.robot_trans_info?.purchase_average ? parseFloat(value[0].robot_trans_info.purchase_average).toFixed(4) : null
+            //持倉總額
+            const usdtPurchaseAmount = value[0]?.usdt_purchase_amount ? parseFloat(value[0]?.usdt_purchase_amount) : null
+            // 盈虧幅 = (當前價格-持倉均價)/持倉均價 ， 用百分比顯示
+            const profitAndLossPeasant = currentPrice && averagePositionPrice ? (((currentPrice - averagePositionPrice) / averagePositionPrice) * 100).toFixed(4) : null
+            // 盈虧 ＝ 持倉總額*盈虧幅
+            const profitAndLoss = usdtPurchaseAmount && profitAndLossPeasant ? (usdtPurchaseAmount * (profitAndLossPeasant / 100)).toFixed(4) : null
+
             return (
               <View key={index}>
                 <Spacer size={12} flex={0} />
                 <View style={styles.listTitleBox} >
-                  <Pressable onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value[catchIndex] })}>
+                  <Pressable onPress={() => navigation.navigate(screenName.TaskDetail, { id: value[0].robot_id, profitAndLossPeasant, currentPrice, totalProfit: totalProfitArrayList[index] })}>
                     <Text style={styles.listTitle}>{coinType}/USDT</Text>
                   </Pressable>
-                  <Pressable onPress={() => handleCloseRobot(value[catchIndex].robot_id, value[catchIndex]?.enabled)}>
-                    <Text style={{ color: value[catchIndex]?.enabled ? '#11AB2C' : '#FF3B30' }}>
+                  <Pressable onPress={() => {
+                    const str = !!value[0]?.enabled ? '關閉' : '開啟'
+                    Alert.alert('確定要' + str, '', [
+                      {
+                        text: '取消',
+                        onPress: () => { },
+                      },
+                      {
+                        text: '確定',
+                        onPress: () => { handleCloseRobot(value[0].robot_id, value[0]?.enabled) },
+                      },
+                    ])
+                  }}>
+                    <Text style={{ color: value[0]?.enabled ? '#11AB2C' : '#FF3B30' }}>
                       <Text style={{ color: Colors.grayText3 }}>狀態：</Text>
                       {value[0]?.enabled ? '開啟' : '關閉'}
                     </Text>
                   </Pressable>
                 </View>
-                <Pressable style={styles.listBox} onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value[catchIndex] })}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text >循環次數 {value?.length}</Text>
+                  <Text >機器人ID {value[0].robot_id}</Text>
+                  <Text >機器人群組ID {value[0].group_robot_id}</Text>
+                </View>
+                <Spacer size={12} flex={0} />
+                <Pressable style={styles.listBox} onPress={() => navigation.navigate(screenName.TaskDetail, { id: value[0].robot_id, profitAndLossPeasant, currentPrice, totalProfit: totalProfitArrayList[index] })}>
                   <View style={{ flexDirection: 'row' }}>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉量</Text>
-                      <Text style={styles.listNumber}>
-                        {value[catchIndex]?.purchase_amount && <Text>{parseFloat(value[catchIndex]?.purchase_amount).toFixed(7)}</Text>}
+                      <Text style={[styles.listNumber]}>
+                        {!!purchaseAmount && <Text >{purchaseAmount}</Text>}
                       </Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉均價</Text>
                       <Text style={styles.listNumber}>
-                        {averagePositionPrice && (
-                          <Text>{averagePositionPrice}</Text>
+                        {!!averagePositionPrice && (
+                          <Text >{parseFloat(averagePositionPrice)}</Text>
                         )}
                       </Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉總額</Text>
                       <Text style={styles.listNumber}>
-                        {value[0]?.usdt_purchase_amount && (
-                          <Text>{parseFloat(value[catchIndex]?.usdt_purchase_amount).toFixed(7)}</Text>
+                        {!!usdtPurchaseAmount && (
+                          <Text >{parseFloat(usdtPurchaseAmount.toFixed(4))}</Text>
                         )}
                       </Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>總盈利</Text>
-                      <Text style={styles.listNumber}>-</Text>
+                      {totalProfitArrayList && <Text style={[styles.listNumber, { color: totalProfitArrayList[index] >= 0 ? 'green' : 'red' }]}>{parseFloat(totalProfitArrayList[index])}</Text>}
                     </View>
                   </View>
                   <Spacer size={20} flex={0} />
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>當前價格</Text>
-                      {Array.isArray(currentPrice) && currentPrice.length > 0 && <Text style={styles.listNumber}>{parseFloat(currentPrice[0].cost).toFixed(4)}</Text>}
+                      {!!currentPrice && <Text style={styles.listNumber}>{currentPrice}</Text>}
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉單數</Text>
-                      <Text style={styles.listNumber}>{value[catchIndex]?.robot_trans_info && (
-                        <Text>{parseInt(value[catchIndex]?.robot_trans_info.purchase_count)}</Text>
+                      <Text style={styles.listNumber}>{value[0]?.robot_trans_info && (
+                        <Text>{parseInt(value[0]?.robot_trans_info.purchase_count)}</Text>
                       )}</Text>
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>盈虧幅</Text>
-                      <Text style={styles.listNumber}>-%</Text>
+                      {!!profitAndLossPeasant && <Text style={[styles.listNumber, { color: profitAndLossPeasant > 0 ? 'green' : 'red' }]}>{parseFloat(profitAndLossPeasant)}%</Text>}
                     </View>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>盈虧</Text>
-                      {profitAndLoss && <Text style={styles.listNumber}>{profitAndLoss}</Text>}
+                      {!!profitAndLoss && <Text style={[styles.listNumber, { color: profitAndLoss >= 0 ? 'green' : 'red' }]}>{parseFloat(profitAndLoss)}</Text>}
                     </View>
                   </View>
                 </Pressable>
                 <Spacer size={8} flex={0} />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                  <Pressable onPress={() => handleCloseRobotPurchase(value[catchIndex].robot_id, value[catchIndex]?.purchase_enabled)}>
-                    <Text style={styles.listButtonText}>{value[catchIndex].purchase_enabled ? '暫停買入' : '恢復買入'}</Text>
+                  <Pressable onPress={() => {
+                    const str = !!value[0]?.purchase_enabled ? '暫停買入' : '恢復買入'
+                    Alert.alert('確定要' + str, '', [
+                      {
+                        text: '取消',
+                        onPress: () => { },
+                      },
+                      {
+                        text: '確定',
+                        onPress: () => { handleCloseRobotPurchase(value[0].robot_id, value[0]?.purchase_enabled) },
+                      },
+                    ])
+                  }}>
+                    <Text style={styles.listButtonText}>{value[0].purchase_enabled ? '暫停買入' : '恢復買入'}</Text>
                   </Pressable>
-                  <Pressable onPress={() => navigation.navigate(screenName.CoverUp, { robot_id: value[catchIndex]?.robot_id })}>
+                  <Pressable onPress={() => navigation.navigate(screenName.CoverUp, { robot_id: value[0]?.robot_id })}>
                     <Text style={styles.listButtonText}>一鍵加倉</Text>
                   </Pressable>
-                  <Pressable>
+                  <Pressable onPress={() => {
+                    Alert.alert('確定要一鍵平倉', '', [
+                      {
+                        text: '取消',
+                        onPress: () => { },
+                      },
+                      {
+                        text: '確定',
+                        onPress: () => { handleOutOfWarehouse(value[0].robot_id) },
+                      },
+                    ])
+                  }}>
                     <Text style={styles.listButtonText}>一鍵平倉</Text>
                   </Pressable>
                 </View>

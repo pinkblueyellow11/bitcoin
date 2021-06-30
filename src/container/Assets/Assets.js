@@ -9,9 +9,29 @@ import Constants from 'expo-constants'
 const INVALID_TOKEN = 401002
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
+  const [walletHistory, setWalletHistory] = useState(null)
 
-  return <Assets setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  const getWalletHistory = async () => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.getWalletHistory()
+      setIsWaiting(false)
+      setWalletHistory(result.data)
+    } catch (error) {
+      console.log('[container/Assets] getWalletHistory error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
+  useEffect(() => {
+    console.log('執行 getWalletHistory')
+    getWalletHistory()
+  }, [])
+
+  return <Assets walletHistory={walletHistory} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
 }

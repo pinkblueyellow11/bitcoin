@@ -5,7 +5,9 @@ import { connect, useSelector, useDispatch } from 'react-redux'
 import agent, { setAxiosTokens, clearAxiosTokens } from '../../lib/agent'
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
+  //const { params } = props.navigation.state
+  //console.log('LoginContainer params', params)
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
   const [userInfo, setUserInfo] = useState(null)

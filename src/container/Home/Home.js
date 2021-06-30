@@ -39,5 +39,5 @@ export default function LoginContainer(props) {
     getCoinCost()
   }, [])
 
-  return <Home coinCost={coinCost} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  return <Home coinCost={coinCost} getCoinCost={getCoinCost} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
 }

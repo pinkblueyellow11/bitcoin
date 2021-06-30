@@ -14,4 +14,5 @@ export const ERROR_STATUS = {
   601012: 'USDT amount is not enough',
   101004: 'Referrer does not exist',
   601006: 'trade account balance is not enough',
+  601013: 'No inventory',
 }

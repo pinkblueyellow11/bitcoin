@@ -56,7 +56,15 @@ const bot = {
   manualPurchase: (robot_id, body) => {
     return axios.post('/user/robots/' + robot_id + '/manual-purchase', body)
   },
-
+  outOfWarehouse: (robot_id) => {
+    return axios.post('/user/robots/' + robot_id + '/manual-sell')
+  },
+  getWalletHistory: () => {
+    return axios.get('/usdt/wallet-history')
+  },
+  getUsdtTrans: () => {
+    return axios.get('/usdt/usdt-trans')
+  },
 }
 
 const Account = {

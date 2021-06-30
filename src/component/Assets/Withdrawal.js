@@ -17,6 +17,7 @@ import {
   PermissionsAndroid,
   Linking,
 } from 'react-native'
+import dayjs from 'dayjs'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import componentProps from '../../constant/componentProps'
 import { useNavigation } from '@react-navigation/native'
@@ -31,6 +32,19 @@ import config from '../../constant/config'
 import Carousel from 'react-native-snap-carousel'
 import { Ionicons, AntDesign, MaterialIcons } from '@expo/vector-icons'
 import QRCode from 'react-native-qrcode-svg'
+import Spinner from 'react-native-loading-spinner-overlay'
+
+const RECORD_TYPE = {
+  pickUp: '1',
+  recharge: '2',
+}
+
+const STATUS_TYPE = {
+  0: '審核中',
+  1: '審核通過',
+  2: '審核失敗',
+  3: '已撤銷',
+}
 
 const INPUT_FIELD = {
   requestAddress: 'requestAddress',
@@ -39,7 +53,7 @@ const INPUT_FIELD = {
 }
 
 function Withdrawal(props) {
-  const { drawCoin, errorMsg, setErrorMsg } = props
+  const { usdtTrans, drawCoin, errorMsg, setErrorMsg, isWaiting } = props
   const navigation = useNavigation()
 
   const [requestAddress, setRequestAddress] = useState('')
@@ -47,6 +61,7 @@ function Withdrawal(props) {
   const [handlingFee, setHandlingFee] = useState('')
   const [focusedInput, setFocusedInput] = useState(null)
   const [activeSubmit, setActiveSubmit] = useState(false)
+  const [countError, setCountError] = useState(false)
 
   const handleSubmit = async () => {
     const body = {
@@ -63,7 +78,11 @@ function Withdrawal(props) {
     if (requestAddress === '' || count === '') {
       setActiveSubmit(false)
     } else {
-      setActiveSubmit(true)
+      if (count < 20) setCountError(true)
+      else {
+        setCountError(false)
+        setActiveSubmit(true)
+      }
     }
   }, [requestAddress, count])
 
@@ -73,7 +92,7 @@ function Withdrawal(props) {
       Alert.alert('錯誤訊息', errorMsg, [
         {
           text: '確定',
-          onPress: () => {},
+          onPress: () => { },
         },
       ])
       setErrorMsg(null)
@@ -94,9 +113,9 @@ function Withdrawal(props) {
         </Body>
         <Right></Right>
       </Header>
-      <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
+      <View style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
         <View style={{ flexDirection: 'row' }}>
-          <Text style={styles.itemTitle}>提需地址</Text>
+          <Text style={styles.itemTitle}>提幣位址</Text>
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.requestAddress}>
             <Input
               style={styles.itemInput}
@@ -114,6 +133,7 @@ function Withdrawal(props) {
           <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.count}>
             <Input
               style={styles.itemInput}
+              placeholder={'金額必須 >=20'}
               placeholderTextColor={Colors.placeholderTColor}
               value={count}
               keyboardType="number-pad"
@@ -123,6 +143,12 @@ function Withdrawal(props) {
             />
           </Item>
         </View>
+        <Spacer size={4} flex={0} />
+        {countError && (
+          <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>
+            金額必須大於或等於20
+          </Text>
+        )}
         {/* <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>手續費{'    '}</Text>
@@ -139,6 +165,9 @@ function Withdrawal(props) {
           </Item>
         </View> */}
         <Spacer size={32} flex={0} />
+        <Text style={{ color: Colors.redText }}>請輸入USDT TRC20地址，若輸入錯誤因而遺失自行負責
+          金額需大於等於20USDT，手續費2 USDT</Text>
+        <Spacer size={12} flex={0} />
         <Button
           full
           disabled={!activeSubmit}
@@ -154,7 +183,38 @@ function Withdrawal(props) {
             確認提幣
           </Text>
         </Button>
-      </ScrollView>
+        <Spacer size={32} flex={0} />
+        <View style={styles.rowStyle}>
+          <View style={styles.rowItem}>
+            <Text style={{ color: Colors.grayText3 }}>日期</Text>
+          </View>
+          <View style={styles.rowItem}>
+            <Text style={{ color: Colors.grayText3 }}>金額</Text>
+          </View>
+          <View style={styles.rowItem}>
+            <Text style={{ color: Colors.grayText3 }}>說明</Text>
+          </View>
+          <View style={styles.rowItem}>
+            <Text style={{ color: Colors.grayText3 }}>狀態</Text>
+          </View>
+        </View>
+        <Spacer size={16} flex={0} />
+        <ScrollView>
+          {
+            usdtTrans && usdtTrans.map((item, index) => {
+              const formatDate = 'YYYY/MM/DD HH:mm:ss'
+              const createdAt = dayjs(item.created_at).format(formatDate)
+              return (<View key={index} style={[styles.rowStyle, { paddingVertical: 16 }]}>
+                <Text>{createdAt}</Text>
+                <Text>{parseFloat(item.amount)}</Text>
+                <Text>{item.type === RECORD_TYPE.pickUp ? '提領' : '充值'}</Text>
+                <Text>{STATUS_TYPE[item.status]}</Text>
+              </View>)
+            })
+          }
+        </ScrollView>
+      </View>
+      <Spinner visible={isWaiting} />
     </Container>
   )
 }
@@ -179,6 +239,14 @@ const styles = StyleSheet.create({
     color: Colors.mainColor,
     alignSelf: 'center',
     marginLeft: 8,
+  },
+  rowStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  rowItem: {
+    flex: 1,
+    alignItems: 'center',
   },
 })
 
