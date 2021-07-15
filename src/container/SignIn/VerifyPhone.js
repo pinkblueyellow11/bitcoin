@@ -4,7 +4,7 @@ import agent from '../../lib/agent'
 import { ERROR_STATUS } from '../../constant/signIn'
 
 export default function LoginContainer(props) {
-  const { isPhoneAccount, emailAccount, passwordValue, introducCode, selectedValue } = props.route.params
+  const { isPhoneAccount, emailAccount, passwordValue, introducCode, account_prefix } = props.route.params
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
 
@@ -31,7 +31,7 @@ export default function LoginContainer(props) {
       emailAccount={emailAccount}
       passwordValue={passwordValue}
       introducCode={introducCode}
-      selectedValue={selectedValue}
+      account_prefix={account_prefix}
       isWaiting={isWaiting}
       errorMsg={errorMsg}
       setErrorMsg={setErrorMsg}

@@ -35,15 +35,18 @@ import { Feather } from '@expo/vector-icons'
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskHome(props) {
-  const { getRobot, closeRobot, closeRobotPurchase, outOfWarehouse, robotArray, api_key_setted, coinCurrentPrice, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
+  const { getUsdtBalance, usdtAmount, profitToday, getProfitToday, profitMonth, getProfitMonth, usdtBalance, getRobot, closeRobot, closeRobotPurchase, outOfWarehouse, robotArray, api_key_setted, coinCurrentPrice, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
   const navigation = useNavigation()
 
   const [totalPosition, setTotalPosition] = useState(null)
   const [totalProfitArrayList, setTotalProfitArrayList] = useState(null)
 
-
-  const handleSubmit = async () => { }
-
+  const handleRefresh = async () => {
+    await getRobot()
+    await getProfitToday()
+    await getProfitMonth()
+    await getUsdtBalance()
+  }
 
   const handleCloseRobot = async (id, enabled) => {
     const body = {
@@ -84,6 +87,7 @@ function TaskHome(props) {
   useEffect(() => {
     if (errorMsg !== null) {
       console.log('errorMsg', errorMsg)
+      if (errorMsg === undefined) errorMsg = '系統錯誤'
       Alert.alert(errorMsg, '', [
         {
           text: '確定',
@@ -98,7 +102,6 @@ function TaskHome(props) {
     if (!robotArray) return
     let total = 0
     let totalProfitArray = []
-    console.log('robotArray', robotArray)
     for (const item of robotArray) {
       if (item[0].enabled) total += parseFloat(item[0]?.usdt_purchase_amount)
       let totalProfit = 0
@@ -106,18 +109,18 @@ function TaskHome(props) {
         if (parseFloat(value.profit) > 0)
           totalProfit += parseFloat(value.profit)
       })
-      totalProfitArray.push(totalProfit.toFixed(4))
+      totalProfitArray.push(totalProfit.toFixed(2))
     }
-    setTotalPosition(total)
+    setTotalPosition(parseFloat(total).toFixed(0))
     setTotalProfitArrayList(totalProfitArray)
   }, [robotArray])
 
-  // useEffect(() => {
-  //   const timerId = setInterval(() => {
-  //     getRobot()
-  //   }, 300000)
-  //   return () => clearInterval(timerId);
-  // }, [])
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      getRobot()
+    }, 300000)
+    return () => clearInterval(timerId);
+  }, [])
 
   return (
     <Container style={{}}>
@@ -130,14 +133,25 @@ function TaskHome(props) {
         <Right>
           <Pressable
             onPress={() => {
-              if (api_key_setted) navigation.navigate(screenName.ChooseCoinType)
-              else
+              if (!api_key_setted) {
                 Alert.alert('請先至主頁設定API KEY', '', [
                   {
                     text: '確定',
                     onPress: () => { },
                   },
                 ])
+                return
+              }
+              if (parseFloat(usdtAmount) <= 0) {
+                Alert.alert('燃料費不足，無法新建任務，請先充值', '', [
+                  {
+                    text: '確定',
+                    onPress: () => { },
+                  },
+                ])
+                return
+              }
+              navigation.navigate(screenName.ChooseCoinType)
             }}
           >
             <Text style={{ color: Colors.mainColor }}>新建任務</Text>
@@ -146,23 +160,23 @@ function TaskHome(props) {
       </Header>
       <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding + 10 }]}>
         <View style={{ flexDirection: 'row' }}>
-          <View style={[styles.boxView, { marginRight: 16 }]}>
+          <Pressable onPress={() => navigation.navigate(screenName.TaskProfitRecord)} style={[styles.boxView, { marginRight: 16 }]}>
             <Text style={styles.boxText1}>今日總盈利</Text>
             <Spacer size={10} flex={0} />
-            <Text style={styles.boxText2}>0</Text>
-          </View>
-          <View style={[styles.boxView, { marginLeft: 12 }]}>
+            {profitToday !== null && <Text style={styles.boxText2}>{parseFloat(parseFloat(profitToday).toFixed(2)).toString() || '-'}</Text>}
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate(screenName.TaskProfitRecord)} style={[styles.boxView, { marginLeft: 12 }]}>
             <Text style={styles.boxText1}>歷史總盈利</Text>
             <Spacer size={10} flex={0} />
-            <Text style={styles.boxText2}>0</Text>
-          </View>
+            {profitMonth !== null && <Text style={styles.boxText2}>{parseFloat(parseFloat(profitMonth).toFixed(2)).toString() || '-'}</Text>}
+          </Pressable>
         </View>
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <View style={[styles.boxView, { marginRight: 16 }]}>
             <Text style={styles.boxText1}>USDT餘額</Text>
             <Spacer size={10} flex={0} />
-            <Text style={styles.boxText2}>0</Text>
+            {usdtBalance !== null ? <Text style={styles.boxText2}>{parseFloat(usdtBalance).toString()}</Text> : <Text style={styles.boxText2}>-</Text>}
           </View>
           <View style={[styles.boxView, { marginLeft: 12 }]}>
             <Text style={styles.boxText1}>總持倉</Text>
@@ -171,7 +185,7 @@ function TaskHome(props) {
           </View>
         </View>
         <Spacer size={32} flex={0} />
-        <Pressable onPress={() => getRobot()} style={{ alignItems: 'flex-end' }}>
+        <Pressable onPress={handleRefresh} style={{ alignItems: 'flex-end' }}>
           <Feather name="refresh-ccw" size={20} color={Colors.brandText} />
         </Pressable>
         <Spacer size={8} flex={0} />
@@ -187,12 +201,11 @@ function TaskHome(props) {
             //持倉均價
             const averagePositionPrice = value[0]?.robot_trans_info?.purchase_average ? parseFloat(value[0].robot_trans_info.purchase_average).toFixed(4) : null
             //持倉總額
-            const usdtPurchaseAmount = value[0]?.usdt_purchase_amount ? parseFloat(value[0]?.usdt_purchase_amount) : null
+            const usdtPurchaseAmount = value[0]?.usdt_purchase_amount ? parseFloat(value[0]?.usdt_purchase_amount).toFixed(0) : null
             // 盈虧幅 = (當前價格-持倉均價)/持倉均價 ， 用百分比顯示
-            const profitAndLossPeasant = currentPrice && averagePositionPrice ? (((currentPrice - averagePositionPrice) / averagePositionPrice) * 100).toFixed(4) : null
+            const profitAndLossPeasant = currentPrice && averagePositionPrice ? (((currentPrice - averagePositionPrice) / averagePositionPrice) * 100).toFixed(2) : null
             // 盈虧 ＝ 持倉總額*盈虧幅
-            const profitAndLoss = usdtPurchaseAmount && profitAndLossPeasant ? (usdtPurchaseAmount * (profitAndLossPeasant / 100)).toFixed(4) : null
-
+            const profitAndLoss = usdtPurchaseAmount && profitAndLossPeasant ? (usdtPurchaseAmount * (profitAndLossPeasant / 100)).toFixed(2) : null
             return (
               <View key={index}>
                 <Spacer size={12} flex={0} />
@@ -221,8 +234,8 @@ function TaskHome(props) {
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text >循環次數 {value?.length}</Text>
-                  <Text >機器人ID {value[0].robot_id}</Text>
-                  <Text >機器人群組ID {value[0].group_robot_id}</Text>
+                  <Text >任務編號 {value[0].group_robot_id}</Text>
+                  <Text >排程編號 {value[0].robot_id}</Text>
                 </View>
                 <Spacer size={12} flex={0} />
                 <Pressable style={styles.listBox} onPress={() => navigation.navigate(screenName.TaskDetail, { id: value[0].robot_id, profitAndLossPeasant, currentPrice, totalProfit: totalProfitArrayList[index] })}>
@@ -245,7 +258,7 @@ function TaskHome(props) {
                       <Text style={styles.listBoxTitle}>持倉總額</Text>
                       <Text style={styles.listNumber}>
                         {!!usdtPurchaseAmount && (
-                          <Text >{parseFloat(usdtPurchaseAmount.toFixed(4))}</Text>
+                          <Text >{parseFloat(usdtPurchaseAmount)}</Text>
                         )}
                       </Text>
                     </View>
@@ -364,7 +377,7 @@ const styles = StyleSheet.create({
   },
   boxText2: {
     ...componentProps.fontBodyBold,
-    color: Colors.redText,
+    color: '#C3639C',
     textAlign: 'center',
     paddingBottom: 10,
   },

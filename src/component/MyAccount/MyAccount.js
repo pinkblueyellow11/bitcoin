@@ -108,7 +108,7 @@ function MyAccount(props) {
               borderBottomWidth: 0.25,
               borderBottomColor: Colors.grayLine,
             }}
-            onPress={() => {}}
+            onPress={() => { }}
           >
             <View
               style={{
@@ -130,6 +130,10 @@ function MyAccount(props) {
               </Button>
             </View>
           </Pressable>
+          <Spacer size={16} flex={0} />
+          <Text style={{ color: Colors.brandText }}>
+            版本 v {Constants.nativeAppVersion}
+          </Text>
           <Spacer size={60} flex={0} />
           <Pressable
             style={{

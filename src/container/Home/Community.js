@@ -7,9 +7,30 @@ import { ERROR_STATUS } from '../../constant/signIn'
 import Constants from 'expo-constants'
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
+  const [profitGroupArray, setProfitGroupArray] = useState(null)
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
 
-  return <Community setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  const getProfitGroup = async () => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.getProfitGroup()
+      setIsWaiting(false)
+      console.log('getProfitGroup result', result)
+      setProfitGroupArray(result?.data?.group)
+      //return result
+    } catch (error) {
+      console.log('[container/Home] getProfitGroup error', error)
+      //setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
+  useEffect(() => {
+    getProfitGroup()
+  }, [])
+
+  return <Community profitGroupArray={profitGroupArray} isWaiting={isWaiting} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
 }

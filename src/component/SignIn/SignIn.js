@@ -26,9 +26,10 @@ import { FONT_WEIGHT } from '../../constant/componentProps/typography'
 import config from '../../constant/config'
 import CheckBox from '../UI/Checkbox'
 import Spinner from 'react-native-loading-spinner-overlay'
-import { isValidTaiwanPhone } from '../../lib/string'
-import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
+import { isValidTaiwanPhone, isValidChainPhone } from '../../lib/string'
+import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
 import { Picker } from '@react-native-picker/picker'
+import dayjs from 'dayjs'
 
 const { isDevEnv } = config
 
@@ -43,6 +44,11 @@ const INPUT_FIELD = {
   coinPasswordValue: 'coinPasswordValue',
   secondCoinPasswordValue: 'secondCoinPasswordValue',
   introducCode: 'introducCode',
+}
+
+const PHONE_TYPE = {
+  tw: '886',
+  cn: '86'
 }
 
 export default function SignIn(props) {
@@ -60,13 +66,16 @@ export default function SignIn(props) {
   const [isShowErrorPassword, setIsShowErrorPassword] = useState(false)
   const [isShowErrorIntroducCode, setIsShowErrorIntroducCode] = useState(true)
   const [isPhoneAccount, setIsPhoneAccount] = useState(true)
-  const [selectedValue, setSelectedValue] = useState('+886')
+  const [selectedValue, setSelectedValue] = useState(PHONE_TYPE.tw)
+  const [isTimer, setIsTimer] = useState(false)
+  const [count, setCount] = useState(config.VERIFICATION_COUNTDOWN_TIME)
 
   useEffect(() => {
     if (
       emailAccount === '' ||
       passwordValue === '' ||
       twoPasswordValue === '' ||
+      verifyCode === '' ||
       introducCode === '' ||
       !isCheckedOne
     ) {
@@ -79,17 +88,37 @@ export default function SignIn(props) {
     } else {
       setIsShowErrorIntroducCode(false)
     }
-  }, [emailAccount, passwordValue, twoPasswordValue, isCheckedOne, introducCode])
+  }, [emailAccount, passwordValue, twoPasswordValue, verifyCode, isCheckedOne, introducCode])
+
+  useEffect(() => {
+    if (!isTimer) return
+    const startTime = dayjs().toISOString()
+    //倒數計時器，useInterval(每1秒會呼叫callback,如果倒數秒數>0則，delay 1秒)
+    const timerId = setInterval(() => {
+      const duration = dayjs().unix() - dayjs(startTime).unix()
+      const countTime = config.VERIFICATION_COUNTDOWN_TIME - duration
+      if (countTime >= 0) setCount(countTime)
+      else {
+        setIsTimer(false)
+        setCount(config.VERIFICATION_COUNTDOWN_TIME)
+        clearInterval(timerId)
+      }
+    }, count >= 0 ? 1000 : null)
+    return () => clearInterval(timerId);
+  }, [isTimer])
 
   const handlePhoneBlur = () => {
-    setIsShowErrorPhone(!isValidTaiwanPhone(emailAccount))
+    setIsShowErrorPhone(false)
+    if (selectedValue === PHONE_TYPE.tw) setIsShowErrorPhone(!isValidTaiwanPhone(emailAccount))
+    else if (selectedValue === PHONE_TYPE.cn) setIsShowErrorPhone(!isValidChainPhone(emailAccount))
+
   }
 
   const handlePasswordBlur = () => {
     setIsShowErrorPassword(!rules.test(passwordValue))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (passwordValue !== twoPasswordValue) {
       Alert.alert('密碼不相同', '', [
         {
@@ -98,11 +127,41 @@ export default function SignIn(props) {
         },
       ])
     } else {
-      registerVerify()
+      const body = {
+        account: emailAccount,
+        password: passwordValue,
+        verify_code: verifyCode,
+        recommend_code: introducCode,
+      }
+
+      if (isPhoneAccount) body.account_prefix = account_prefix
+      const result = await register(body)
+      if (!result.message) {
+        setErrorMsg(null)
+        Alert.alert('註冊成功', '', [
+          {
+            text: '確定',
+            onPress: () => {
+              navigation.navigate(screenName.Login)
+            },
+          },
+        ])
+      }
     }
   }
 
   const registerVerify = async () => {
+    console.log('emailAccount', emailAccount)
+    console.log('isShowErrorPhone', isShowErrorPhone)
+    if (emailAccount === '' || isShowErrorPhone) {
+      Alert.alert('請先填寫登入帳號，再寄驗證碼', '', [
+        {
+          text: '確定',
+          onPress: () => { },
+        },
+      ])
+      return
+    }
     const body = {
       account: emailAccount,
     }
@@ -111,40 +170,35 @@ export default function SignIn(props) {
     const result = await sendEmail(body)
     if (!result.message) {
       setErrorMsg(null)
+      setIsTimer(true)
       Alert.alert('驗證碼已寄出，請查看', '', [
         {
           text: '確定',
-          onPress: () => {
-            navigation.navigate(screenName.VerifyPhone, {
-              isPhoneAccount: isPhoneAccount,
-              emailAccount: emailAccount,
-              passwordValue: passwordValue,
-              introducCode: introducCode,
-              account_prefix: selectedValue,
-            })
-          },
+          onPress: () => { },
         },
       ])
+    } else {
+      setIsTimer(false)
     }
   }
 
   useEffect(() => {
     if (errorMsg === null) return
     Alert.alert('錯誤訊息', errorMsg, [
-      {
-        text: '去輸入驗證碼',
-        onPress: () => {
-          if (emailAccount !== '' && passwordValue !== '') {
-            navigation.navigate(screenName.VerifyPhone, {
-              isPhoneAccount: isPhoneAccount,
-              emailAccount: emailAccount,
-              passwordValue: passwordValue,
-              introducCode: introducCode,
-              account_prefix: selectedValue,
-            })
-          }
-        },
-      },
+      // {
+      //   text: '去輸入驗證碼',
+      //   onPress: () => {
+      //     if (emailAccount !== '' && passwordValue !== '') {
+      //       navigation.navigate(screenName.VerifyPhone, {
+      //         isPhoneAccount: isPhoneAccount,
+      //         emailAccount: emailAccount,
+      //         passwordValue: passwordValue,
+      //         introducCode: introducCode,
+      //         account_prefix: selectedValue,
+      //       })
+      //     }
+      //   },
+      // },
       {
         text: '好',
         onPress: () => { },
@@ -214,8 +268,8 @@ export default function SignIn(props) {
                   selectedValue={selectedValue}
                   onValueChange={(value) => setSelectedValue(value)}
                 >
-                  <Picker.Item label="+886" value="+886" />
-                  <Picker.Item label="+86" value="+86" />
+                  <Picker.Item label="+886" value={PHONE_TYPE.tw} />
+                  <Picker.Item label="+86" value={PHONE_TYPE.cn} />
                 </Picker>
               </View>
             )}
@@ -234,6 +288,28 @@ export default function SignIn(props) {
                 value={emailAccount}
                 onChangeText={setEmailAccount}
                 onFocus={() => setFocusedInput(INPUT_FIELD.emailAccount)}
+                onBlur={() => {
+                  if (isPhoneAccount) handlePhoneBlur()
+                  else setIsShowErrorPhone(false)
+                  setFocusedInput(null)
+                }}
+              />
+            </Item>
+            <Spacer size={24} flex={0} />
+            <Pressable disabled={count === config.VERIFICATION_COUNTDOWN_TIME ? false : true} onPress={registerVerify} style={{ borderColor: Colors.mainColor, borderWidth: 1, padding: 12, alignItems: 'center' }}>
+              <Text style={{ color: Colors.mainColor }}>{count === config.VERIFICATION_COUNTDOWN_TIME ? '寄送驗證碼' : count + '後可重新獲取驗證碼'}</Text>
+            </Pressable>
+            <Spacer size={24} flex={0} />
+            <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.verifyCode}>
+              <MaterialIcons name="domain-verification" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
+              <Input
+                style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
+                placeholder={'請輸入驗證碼'}
+                placeholderTextColor={Colors.placeholderTColor}
+                value={verifyCode}
+                keyboardType="number-pad"
+                onChangeText={setVerifyCode}
+                onFocus={() => setFocusedInput(INPUT_FIELD.verifyCode)}
                 onBlur={() => {
                   if (isShowErrorPhone) setFocusedInput(null)
                   handlePhoneBlur()

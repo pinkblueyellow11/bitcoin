@@ -16,6 +16,11 @@ export const isValidTaiwanPhone2 = (phone) => {
   return pattern.test(phone)
 }
 
+export const isValidChainPhone = (phone) => {
+  const pattern = /^\d{11}$/
+  return pattern.test(phone)
+}
+
 /**
  *
  * @param {String} email

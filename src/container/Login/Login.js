@@ -25,6 +25,7 @@ export default function LoginContainer(props) {
     setIsWaiting(true)
     try {
       const result = await agent.Auth.logIn(body)
+      console.log('logIn result', result)
       setIsWaiting(false)
       setToken(result.data.token)
       setrefreshToken(result.data.refresh_token)

@@ -30,9 +30,41 @@ import { FONT_WEIGHT } from '../../constant/componentProps/typography'
 import config from '../../constant/config'
 import Carousel from 'react-native-snap-carousel'
 import { Ionicons, AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { RadioButton } from 'react-native-paper'
 
 const initialLayout = { width: Dimensions.get('window').width }
 
+/*
+保守：
+做單數量：5
+首單金額：10
+進第一單：0.1
+止盈比例：2.5
+跌幅加單：2
+加單增幅：3
+下跌回漲：0.2
+上漲回跌：0.3
+
+平衡：
+做單數量：6
+首單金額：10
+進第一單：0.1
+止盈比例：3
+跌幅加單：2
+加單增幅：2
+下跌回漲：0.1
+上漲回跌：0.5
+
+高頻：
+做單數量：8
+首單金額：10
+進第一單：0.1
+止盈比例：3
+跌幅加單：2
+加單增幅：1.5
+下跌回漲：0.1
+上漲回跌：0.4
+*/
 const INPUT_FIELD = {
   orderCount: 'orderCount',
   firstOrderAmount: 'firstOrderAmount',
@@ -42,6 +74,12 @@ const INPUT_FIELD = {
   increaseInOrder: 'increaseInOrder',
   fallBackToRise: 'fallBackToRise',
   riseAndFall: 'riseAndFall',
+}
+
+const RADIO_TYPE = {
+  oneRadio: 'oneRadio',
+  twoRadio: 'twoRadio',
+  threeRadio: 'threeRadio',
 }
 
 function NewTask(props) {
@@ -66,10 +104,73 @@ function NewTask(props) {
   const [isRiseAndFallError, setIsRiseAndFallError] = useState(false)
 
   const [focusedInput, setFocusedInput] = useState(null)
-  const [onceType, setOnceType] = useState(true)
+  const [onceType, setOnceType] = useState(false)
   const [activeSubmit, setActiveSubmit] = useState(false)
+  const [oneRadioChecked, setOneRadioChecked] = useState('');
+  const [twoRadioChecked, setTwoRadioChecked] = useState('');
+  const [threeRadioChecked, setThreeRadioChecked] = useState('');
 
-  const windowWidth = useWindowDimensions().width
+  const cleanTextInput = () => {
+    setOrderCount('')
+    setFirstOrderAmount('')
+    setEnterTheFirstOrder('')
+    setTakeProfitRatio('')
+    setDecreasePlusOrder('')
+    setIncreaseInOrder('')
+    setFallBackToRise('')
+    setRiseAndFall('')
+  }
+
+  const setRadioTextInput = (a, b, c, d, e, f, g, h) => {
+    setOrderCount(a)
+    setFirstOrderAmount(b)
+    setEnterTheFirstOrder(c)
+    setTakeProfitRatio(d)
+    setDecreasePlusOrder(e)
+    setIncreaseInOrder(f)
+    setFallBackToRise(g)
+    setRiseAndFall(h)
+  }
+
+  const handleRadioChange = (radio_type) => {
+    switch (radio_type) {
+      case RADIO_TYPE.oneRadio:
+        if (oneRadioChecked === RADIO_TYPE.oneRadio) {
+          setOneRadioChecked('')
+          cleanTextInput()
+        } else {
+          setOneRadioChecked(RADIO_TYPE.oneRadio)
+          setRadioTextInput('5', '10', '0.1', '2.5', '2', '3', '0.2', '0.3')
+          setTwoRadioChecked('')
+          setThreeRadioChecked('')
+        }
+        break
+      case RADIO_TYPE.twoRadio:
+        if (twoRadioChecked === RADIO_TYPE.twoRadio) {
+          setTwoRadioChecked('')
+          cleanTextInput()
+        } else {
+          setTwoRadioChecked(RADIO_TYPE.twoRadio)
+          setRadioTextInput('6', '10', '0.1', '3', '2', '2', '0.1', '0.5')
+          setOneRadioChecked('')
+          setThreeRadioChecked('')
+        }
+        break
+      case RADIO_TYPE.threeRadio:
+        if (threeRadioChecked === RADIO_TYPE.threeRadio) {
+          setThreeRadioChecked('')
+          cleanTextInput()
+        } else {
+          setThreeRadioChecked(RADIO_TYPE.threeRadio)
+          setRadioTextInput('8', '10', '0.1', '3', '2', '1.5', '0.1', '0.4')
+          setOneRadioChecked('')
+          setTwoRadioChecked('')
+        }
+        break
+      default:
+        break
+    }
+  }
 
   const checkValue = (value) => {
     //正整數或小數1位。大於0，小於或等於20
@@ -185,6 +286,33 @@ function NewTask(props) {
         <Text style={[componentProps.fontBodyBold, { color: Colors.redText, textAlign: 'center' }]}>
           {chooseCoinTypeValue}/USDT
         </Text>
+        <Spacer size={32} flex={0} />
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <RadioButton
+              value={RADIO_TYPE.oneRadio}
+              status={oneRadioChecked === RADIO_TYPE.oneRadio ? 'checked' : 'unchecked'}
+              onPress={() => handleRadioChange(RADIO_TYPE.oneRadio)}
+            />
+            <Text style={{}}>保守</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <RadioButton
+              value={RADIO_TYPE.twoRadio}
+              status={twoRadioChecked === RADIO_TYPE.twoRadio ? 'checked' : 'unchecked'}
+              onPress={() => handleRadioChange(RADIO_TYPE.twoRadio)}
+            />
+            <Text style={{}}>平衡</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <RadioButton
+              value={RADIO_TYPE.threeRadio}
+              status={threeRadioChecked === RADIO_TYPE.threeRadio ? 'checked' : 'unchecked'}
+              onPress={() => handleRadioChange(RADIO_TYPE.threeRadio)}
+            />
+            <Text style={{}}>高頻</Text>
+          </View>
+        </View>
         <Spacer size={32} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>做單數量</Text>
@@ -395,7 +523,7 @@ function NewTask(props) {
           </Text>
         )}
         <Spacer size={16} flex={0} />
-        <View style={{ flexDirection: 'row' }}>
+        {/* <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>策略類型</Text>
           <View style={{ flexDirection: 'row', width: '70%' }}>
             <Pressable
@@ -421,7 +549,7 @@ function NewTask(props) {
               <Text style={styles.typeBoxText}>循環策略</Text>
             </Pressable>
           </View>
-        </View>
+        </View> */}
         <Spacer size={32} flex={0} />
         <Button
           full

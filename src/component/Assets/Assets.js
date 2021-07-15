@@ -28,9 +28,8 @@ import { Button, Item, Input, Container, Content, Label, Header, Left, Body, Rig
 import { StatusBar } from 'expo-status-bar'
 import Spacer from '../UI/Spacer'
 import { FONT_WEIGHT } from '../../constant/componentProps/typography'
-import config from '../../constant/config'
-import Carousel from 'react-native-snap-carousel'
 import Spinner from 'react-native-loading-spinner-overlay'
+import { Feather } from '@expo/vector-icons'
 
 const initialLayout = { width: Dimensions.get('window').width }
 
@@ -47,7 +46,7 @@ const BOX_INDEX = {
 }
 
 function Assets(props) {
-  const { walletHistory, errorMsg, setErrorMsg, isWaiting } = props
+  const { getUser, getWalletHistory, getBonusOrder, usdtAmount, bonusTotal, walletHistory, errorMsg, setErrorMsg, isWaiting } = props
   const navigation = useNavigation()
 
   const [boxIndex, setBoxIndex] = useState(BOX_INDEX.one)
@@ -58,14 +57,25 @@ function Assets(props) {
     if (!walletHistory) return
     const oneData = walletHistory.filter(value => value.type !== RECORD_TYPE.robotFee)
     const twoData = walletHistory.filter(value => value.type === RECORD_TYPE.robotFee)
-    console.log('oneData', oneData)
-    console.log('twoData', twoData)
     setOneDataArrayList(oneData)
     setTwoDataArrayList(twoData)
 
   }, [walletHistory])
 
   const handleSubmit = async () => { }
+
+  const handleRefresh = async () => {
+    await getWalletHistory()
+    await getBonusOrder()
+    getUser()
+  }
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      handleRefresh()
+    }, 300000)
+    return () => clearInterval(timerId);
+  }, [])
 
   return (
     <Container style={{}}>
@@ -75,39 +85,67 @@ function Assets(props) {
         <Body>
           <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>資金</Text>
         </Body>
-        <Right></Right>
+        <Right>
+          <Pressable onPress={handleRefresh} style={{ alignItems: 'flex-end' }}>
+            <Feather name="refresh-ccw" size={20} color={Colors.brandText} />
+          </Pressable>
+        </Right>
       </Header>
-      <View style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
-        <View style={{ backgroundColor: '#F3EAFF', borderRadius: componentProps.borderRadius }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              paddingHorizontal: 16,
-              justifyContent: 'space-between',
-              paddingTop: 32,
-            }}
+      <View style={[{ paddingHorizontal: componentProps.defaultPadding + 10 }]}>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={[styles.boxView, { marginRight: 16 }]}>
+            <Text style={styles.boxText1}>燃料餘額</Text>
+            <Spacer size={10} flex={0} />
+            {usdtAmount && <Text style={styles.boxText2}>{parseFloat(usdtAmount)}</Text>}
+          </View>
+          <View style={[styles.boxView, { marginLeft: 12 }]}>
+            <Text style={styles.boxText1}>獎金</Text>
+            <Spacer size={10} flex={0} />
+            {/* {<Text style={styles.boxText2}>{'即將開放'}</Text>} */}
+            {bonusTotal !== null && <Text style={styles.boxText2}>{parseFloat(parseFloat(bonusTotal).toFixed(4))}</Text>}
+          </View>
+        </View>
+        {/* <View style={{ backgroundColor: Colors.mainBgColor }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            <View
+              style={{
+                paddingHorizontal: 16,
+                paddingTop: 32,
+              }}
+            >
+              <Text style={[componentProps.fontBodySmall3, { color: Colors.grayText3, alignSelf: 'center' }]}>
+                燃料餘額
+              </Text>
+              <Text style={[componentProps.fontH1, { color: '#C3639C', alignSelf: 'center' }]}>0</Text>
+            </View>
+            <View
+              style={{
+                paddingHorizontal: 16,
+                paddingTop: 32,
+              }}
+            >
+              <Text style={[componentProps.fontBodySmall3, { color: Colors.grayText3, alignSelf: 'center' }]}>
+                燃料餘額
+              </Text>
+              <Text style={[componentProps.fontH1, { color: '#C3639C', alignSelf: 'center' }]}>0</Text>
+            </View>
+          </View>
+          <Spacer size={24} flex={0} />
+        </View> */}
+        <Spacer size={24} flex={0} />
+        <View style={styles.boxButtonView}>
+          <Pressable
+            onPress={() => navigation.navigate(screenName.ReCharge)}
+            style={[styles.boxButton, { marginRight: 16 }]}
           >
-            <Text style={[componentProps.fontBodySmall3, { color: Colors.grayText3, alignSelf: 'center' }]}>
-              燃料餘額
-            </Text>
-            <Text style={[componentProps.fontH1, { color: Colors.redText, alignSelf: 'center' }]}>0</Text>
-          </View>
-          <Spacer size={24} flex={0} />
-          <View style={styles.boxButtonView}>
-            <Pressable
-              onPress={() => navigation.navigate(screenName.ReCharge)}
-              style={[styles.boxButton, { marginRight: 12 }]}
-            >
-              <Text style={styles.boxButtonText}>充值</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => navigation.navigate(screenName.Withdrawal)}
-              style={[styles.boxButton, { marginLeft: 12 }]}
-            >
-              <Text style={styles.boxButtonText}>提幣</Text>
-            </Pressable>
-          </View>
-          <Spacer size={24} flex={0} />
+            <Text style={styles.boxButtonText}>充值</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate(screenName.Withdrawal)}
+            style={[styles.boxButton, { marginLeft: 12 }]}
+          >
+            <Text style={styles.boxButtonText}>提幣</Text>
+          </Pressable>
         </View>
         <Spacer size={24} flex={0} />
         <View style={{ flexDirection: 'row' }}>
@@ -197,18 +235,18 @@ function Assets(props) {
 const styles = StyleSheet.create({
   boxButtonView: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
     justifyContent: 'space-around',
   },
   boxButton: {
     paddingVertical: 8,
-    backgroundColor: 'white',
     flex: 1,
-    borderRadius: componentProps.borderRadius,
+    // borderColor: Colors.mainColor,
+    // borderWidth: 1,
+    backgroundColor: Colors.mainColor,
   },
   boxButtonText: {
     ...componentProps.fontBodyBold2,
-    color: Colors.brandText,
+    color: 'white',
     alignSelf: 'center',
   },
   typeBoxOne: {
@@ -248,6 +286,22 @@ const styles = StyleSheet.create({
   rowItem: {
     flex: 1,
     alignItems: 'center',
+  },
+  boxView: {
+    backgroundColor: Colors.taskBgColor,
+    flex: 1,
+  },
+  boxText1: {
+    ...componentProps.fontOverline,
+    color: 'white',
+    textAlign: 'center',
+    paddingTop: 8,
+  },
+  boxText2: {
+    ...componentProps.fontBodyBold,
+    color: '#C3639C',
+    textAlign: 'center',
+    paddingBottom: 10,
   },
 })
 

@@ -35,7 +35,7 @@ import { Ionicons, AntDesign, Feather, MaterialIcons } from '@expo/vector-icons'
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskDetail(props) {
-  const { getRobotDetail, taskDetail, closeRobot, outOfWarehouse, profitAndLossPeasant, currentPrice, totalProfit, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
+  const { botRepeat, getRobotDetail, taskDetail, closeRobot, outOfWarehouse, profitAndLossPeasant, currentPrice, totalProfit, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
   const navigation = useNavigation()
 
   const [coinType, setCoinType] = useState('')
@@ -64,6 +64,22 @@ function TaskDetail(props) {
       enabled: isOpen ? 0 : 1,
     }
     const result = await closeRobot(taskDetail.robot_id, body)
+    if (result.message) {
+      setErrorMsg(null)
+      Alert.alert('更改失敗', '', [
+        {
+          text: '確定',
+          onPress: () => { },
+        },
+      ])
+    }
+  }
+
+  const handleBotRepeat = async () => {
+    const body = {
+      auto_repeat: taskDetail.auto_repeat ? 0 : 1,
+    }
+    const result = await botRepeat(taskDetail?.robot_id, body)
     if (result.message) {
       setErrorMsg(null)
       Alert.alert('更改失敗', '', [
@@ -110,14 +126,15 @@ function TaskDetail(props) {
           <Feather name="refresh-ccw" size={20} color={Colors.brandText} />
         </Pressable>
         <View style={{ flexDirection: 'row' }}>
-          <Text style={styles.itemTitle}>機器人ID</Text>
-          {taskDetail && <Text style={styles.itemTitle}>{taskDetail.robot_id}</Text>}
+          <Text style={styles.itemTitle}>任務編號</Text>
+          {taskDetail && <Text style={styles.itemTitle}>{taskDetail.group_robot_id}</Text>}
         </View>
         <Spacer size={20} flex={0} />
         <View style={{ flexDirection: 'row' }}>
-          <Text style={styles.itemTitle}>機器人群組ID</Text>
-          {taskDetail && <Text style={styles.itemTitle}>{taskDetail.group_robot_id}</Text>}
+          <Text style={styles.itemTitle}>排程編號</Text>
+          {taskDetail && <Text style={styles.itemTitle}>{taskDetail.robot_id}</Text>}
         </View>
+
         <Spacer size={20} flex={0} />
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.itemTitle}>狀態</Text>
@@ -153,6 +170,11 @@ function TaskDetail(props) {
           {taskDetail && <Text style={styles.itemTitle}>{taskDetail.purchase_enabled ? '持續買入' : '暫停買入'}</Text>}
         </View>
         <Spacer size={20} flex={0} />
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={styles.itemTitle}>機器人自動循環</Text>
+          {taskDetail && <Text style={styles.itemTitle}>{taskDetail.auto_repeat ? '開啟' : '關閉'}</Text>}
+        </View>
+        <Spacer size={20} flex={0} />
         <View style={styles.listBox}>
           <View style={{ flexDirection: 'row' }}>
             <View style={styles.litBoxRow}>
@@ -164,7 +186,7 @@ function TaskDetail(props) {
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>持倉量</Text>
               <Text style={styles.listNumber}>
-                {taskDetail && <Text style={{ color: parseFloat(taskDetail?.purchase_amount) > 0 ? 'green' : 'red' }}>{parseFloat(parseFloat(taskDetail?.purchase_amount).toFixed(4))}</Text>}
+                {taskDetail && <Text >{parseFloat(parseFloat(taskDetail?.purchase_amount).toFixed(4))}</Text>}
               </Text>
             </View>
             <View style={styles.litBoxRow}>
@@ -181,7 +203,7 @@ function TaskDetail(props) {
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>當前價格</Text>
               <Text style={styles.listNumber}>
-                {currentPrice && <Text style={{ color: parseFloat(currentPrice) > 0 ? 'green' : 'red' }}>{currentPrice}</Text>}
+                {currentPrice && <Text >{currentPrice}</Text>}
               </Text>
             </View>
             <View style={styles.litBoxRow}>
@@ -265,7 +287,13 @@ function TaskDetail(props) {
         <Text style={[componentProps.fontBodySmall2, { color: Colors.mainColor }]}>操作</Text>
         <Spacer size={16} flex={0} />
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-          <View>
+          {taskDetail && <View style={{ marginRight: 24, alignItems: 'center' }}>
+            <Pressable style={styles.circleButton} onPress={handleBotRepeat}>
+              <AntDesign name="edit" size={24} color="white" />
+            </Pressable>
+            <Text style={styles.circleButtonText}>{taskDetail.auto_repeat ? '關閉' : '開啟'}機器人自動循環</Text>
+          </View>}
+          <View style={{ marginRight: 24, alignItems: 'center' }}>
             <Pressable style={styles.circleButton} onPress={() => { }}>
               <AntDesign name="edit" size={24} color="white" />
             </Pressable>
@@ -369,9 +397,12 @@ const styles = StyleSheet.create({
     color: Colors.grayText3,
   },
   circleButton: {
+    width: 70,
+    height: 70,
     backgroundColor: Colors.circleBgColor,
     padding: 20,
-    borderRadius: 100,
+    borderRadius: 70 / 2,
+    alignItems: 'center',
   },
   circleButtonText: {
     ...componentProps.fontBody1Medium,

@@ -58,7 +58,11 @@ function ReCharge(props) {
         <Body>
           <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>充值</Text>
         </Body>
-        <Right></Right>
+        <Right>
+          <Pressable onPress={() => navigation.navigate(screenName.ReChargeRecord)}>
+            <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>充值紀錄</Text>
+          </Pressable>
+        </Right>
       </Header>
       <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
         <Spacer size={50} flex={0} />
@@ -68,16 +72,17 @@ function ReCharge(props) {
         <Spacer size={32} flex={0} />
         <Text style={{ color: Colors.grayText3, textAlign: 'center' }}>充值地址( TRC20 ):</Text>
         <Spacer size={8} flex={0} />
-        <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
-          <Text style={{ color: Colors.grayText3 }}>{address}</Text>
+        <View style={{ flexDirection: 'row', alignSelf: 'center', flex: 1, flexWrap: 'wrap' }}>
+          <View>
+            <Text style={{ color: Colors.grayText3 }}>{address}</Text>
+          </View>
           <Pressable
-            style={{
+            style={[{
               backgroundColor: 'transparent',
-              borderColor: 'red',
               borderWidth: 0,
               paddingLeft: 12,
               alignItems: 'flex-start',
-            }}
+            }]}
             onPress={() => writeToClipboard()}
           >
             <Feather name="copy" size={20} color={Colors.mainColor} />

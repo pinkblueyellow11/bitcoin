@@ -15,7 +15,7 @@ import {
   useWindowDimensions,
   Alert,
   PermissionsAndroid,
-  Linking,
+  Clipboard,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import componentProps from '../../constant/componentProps'
@@ -37,6 +37,10 @@ function Invite(props) {
 
   const [qrCodeUrl, setQrCodeUrl] = useState('')
 
+  const writeToClipboard = async () => {
+    await Clipboard.setString(recommend_code && recommend_code)
+    Alert.alert('複製成功！')
+  }
 
   const handleSubmit = async () => { }
 
@@ -101,10 +105,10 @@ function Invite(props) {
             borderWidth: 1,
             //backgroundColor: Colors.brandPrimary,
           }}
-          onPress={() => { }}
+          onPress={() => writeToClipboard()}
         >
           <Text style={[componentProps.fontBodySmall, { color: 'white' }]}>
-            複製QRcode
+            複製推薦碼
           </Text>
         </Button>
         <Spacer size={100} flex={0} />

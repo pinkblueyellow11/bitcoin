@@ -14,10 +14,12 @@ export default {
         const result = await agent.Account.getUser()
         const { data } = result
         if (!result.message) {
+          console.log('getUser data', data)
           dispatch.auth.setUserValue({ name: 'account', value: data.account })
           dispatch.auth.setUserValue({ name: 'account_prefix', value: data.account_prefix })
           dispatch.auth.setUserValue({ name: 'api_key_setted', value: data.api_key_setted })
           dispatch.auth.setUserValue({ name: 'recommend_code', value: data.recommend_code })
+          dispatch.auth.setUserValue({ name: 'usdt_amount', value: data.usdt_amount })
         }
       } catch (error) {
         console.log('[redux/model/auth] getUser error', error)

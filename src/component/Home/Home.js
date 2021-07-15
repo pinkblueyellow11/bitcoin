@@ -104,7 +104,6 @@ function Home(props) {
         <StatusBar style="dark" backgroundColor="transparent" />
         <Left style={{ flex: 1 }}></Left>
         <Body>
-          <Text style={{ color: 'white', alignSelf: 'center' }}>MAA</Text>
         </Body>
         <Right>
           <Pressable onPress={() => navigation.navigate(screenName.Notification)}>
@@ -113,6 +112,10 @@ function Home(props) {
         </Right>
       </Header>
       <View style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
+        <View style={{ height: 200, width: '100%' }}>
+          <Image style={{ height: '100%', width: '100%', resizeMode: 'contain' }} source={require('../../assets/images/googlepaly1.png')} />
+        </View>
+        <Spacer size={32} flex={0} />
         <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
           <View>
             <Pressable
@@ -179,7 +182,7 @@ function Home(props) {
                   </View>
                 ))
             })}
-          <Spacer size={350} flex={0} />
+          <Spacer size={600} flex={0} />
         </ScrollView>
       </View>
     </Container>

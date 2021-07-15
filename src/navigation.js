@@ -1,4 +1,5 @@
 import React, { Component, useState, useEffect } from 'react'
+import { Platform } from 'react-native'
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -8,6 +9,7 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-ic
 import { connect, useSelector, useDispatch } from 'react-redux'
 // Page
 import Login from './container/Login/Login'
+import ForgetPassword from './container/Login/ForgetPassword'
 import SignIn from './container/SignIn/SignIn'
 import VerifyPhone from './container/SignIn/VerifyPhone'
 import Home from './container/Home/Home'
@@ -15,12 +17,14 @@ import MyAccount from './container/MyAccount/MyAccount'
 import TaskHome from './container/Task/TaskHome'
 import NewTask from './container/Task/NewTask'
 import TaskDetail from './container/Task/TaskDetail'
+import TaskProfitRecord from './container/Task/TaskProfitRecord'
 import ChooseCoinType from './container/Task/ChooseCoinType'
 import TaskRecord from './container/Task/TaskRecord'
 import CoverUp from './container/Task/CoverUp'
 import Assets from './container/Assets/Assets'
 import ReCharge from './container/Assets/ReCharge'
 import ReChargeUpdate from './container/Assets/ReChargeUpdate'
+import ReChargeRecord from './container/Assets/ReChargeRecord'
 import Withdrawal from './container/Assets/Withdrawal'
 import Notification from './container/Notification/Notification'
 import Invite from './container/Home/Invite'
@@ -68,7 +72,7 @@ export default function Navigation(props) {
             bottom: 0,
             right: 0,
             // borderTopWidth: 0,
-            height: 60,
+            height: Platform.OS === 'android' ? 60 : 80,
             elevation: 0,
           },
           tabStyle: {
@@ -120,6 +124,20 @@ export default function Navigation(props) {
     )
   }
 
+  function MainStackScreen() {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen name={screentName.Login} component={Login} options={{ headerShown: false }} />
+        <Stack.Screen name={screentName.SignIn} component={SignIn} options={{ headerShown: false }} />
+        <Stack.Screen
+          name={screentName.VerifyPhone}
+          component={VerifyPhone}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    );
+  }
+
   return (
     <NavigationContainer linking={{
       prefixes: ['yigg://'],
@@ -130,14 +148,17 @@ export default function Navigation(props) {
       },
     }
     } >
-      <Stack.Navigator>
+      <Stack.Navigator mode="modal">
         {isLogIn ? (
           <>
-            <Stack.Screen name={screentName.Login} component={Login} options={{ headerShown: false }} />
-            <Stack.Screen name={screentName.SignIn} component={SignIn} options={{ headerShown: false }} />
             <Stack.Screen
-              name={screentName.VerifyPhone}
-              component={VerifyPhone}
+              name="Main"
+              component={MainStackScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={screentName.ForgetPassword}
+              component={ForgetPassword}
               options={{ headerShown: false }}
             />
           </>
@@ -173,6 +194,11 @@ export default function Navigation(props) {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name={screentName.ReChargeRecord}
+              component={ReChargeRecord}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name={screentName.Withdrawal}
               component={Withdrawal}
               options={{ headerShown: false }}
@@ -185,6 +211,11 @@ export default function Navigation(props) {
             <Stack.Screen
               name={screentName.TaskDetail}
               component={TaskDetail}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={screentName.TaskProfitRecord}
+              component={TaskProfitRecord}
               options={{ headerShown: false }}
             />
             <Stack.Screen

@@ -56,7 +56,7 @@ export default {
 
   // Button
   buttonFontFamily: platform === PLATFORM.IOS ? 'System' : 'Roboto_medium',
-  buttonDisabledBg: 'rgba(104, 80, 255, 0.2)',
+  buttonDisabledBg: 'rgba(0,122,250, 0.2)',
   buttonPadding: 6,
   get buttonPrimaryBg() {
     return this.brandPrimary
@@ -125,11 +125,11 @@ export default {
   checkboxSize: 20,
   checkboxTickColor: '#fff',
 
-  // Top
-  mainBgColor: 'rgba(172, 121, 235, 0.2)',
+  // Top 0,122,250
+  mainBgColor: 'rgba(0,122,250, 0.2)',
   // Color
-  brandPrimary: '#AC79EB',
-  brandText: '#AC79EB',
+  brandPrimary: 'rgba(0,122,250, 1)',
+  brandText: 'rgba(0,122,250, 1)',
   brandInfo: '#62B1F6',
   brandSuccess: '#5cb85c',
   brandDanger: '#FF3B30',
@@ -137,9 +137,9 @@ export default {
   brandDark: '#2A4C7F',
   brandLight: '#a9a9a9',
   bgChart: 'rgba(255, 255, 255, 0.5)',
-  mainColor: '#6850FF',
-  circleBgColor: 'rgba(172, 121, 235, 0.56)',
-  taskBgColor: '#BAAFFE',
+  mainColor: 'rgba(0,122,250, 1)',
+  circleBgColor: 'rgba(0,122,250, 0.56)',
+  taskBgColor: 'rgba(0,122,250, 0.4)',
   grayBgColor: 'rgba(245, 244, 244, 0.5)',
 
   // Input

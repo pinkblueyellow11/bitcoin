@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "1060833027590",
-    "project_id": "bitcoinbot-888a2",
-    "storage_bucket": "bitcoinbot-888a2.appspot.com"
+    "project_number": "840502636880",
+    "project_id": "bitcoin-c42b5",
+    "storage_bucket": "bitcoin-c42b5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1060833027590:android:419fbeab72b8a335650587",
+        "mobilesdk_app_id": "1:840502636880:android:4f24317a340c89ac0e7c55",
         "android_client_info": {
-          "package_name": "com.bitcoinbot"
+          "package_name": "com.bitcoinbot.ea"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1060833027590-jipql4m3irtq5dhc5hale3tl1olinit1.apps.googleusercontent.com",
+          "client_id": "840502636880-9oc1ode22d4e0265jd3ed9uc8n6mul2d.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAXm07teyNSp9SlkLmti_qCupsrHWkg-B8"
+          "current_key": "AIzaSyDSPIcAnjVjXXrHOlsRRAeSFdZmy_cpxVY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1060833027590-jipql4m3irtq5dhc5hale3tl1olinit1.apps.googleusercontent.com",
+              "client_id": "840502636880-9oc1ode22d4e0265jd3ed9uc8n6mul2d.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

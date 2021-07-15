@@ -8,7 +8,6 @@ export const clearAxiosTokens = () => {
 }
 
 export const setAxiosTokens = (token) => {
-  console.log('token', token)
   axios.defaults.headers.common.Authorization = 'Bearer ' + token
 }
 const Auth = {
@@ -64,6 +63,31 @@ const bot = {
   },
   getUsdtTrans: () => {
     return axios.get('/usdt/usdt-trans')
+  },
+  getProfitToday: () => {
+    return axios.get('/user/profit/today')
+  },
+  getProfitMonth: () => {
+    return axios.get('/user/profit/month')
+  },
+  getUsdtBalance: () => {
+    return axios.get('/usdt/balance')
+  },
+  getProfitDaily: (params) => {
+    return axios.get('/user/profit/daily', { params })
+  },
+  getBonusOrder: () => {
+    return axios.get('/bonus/orders')
+  },
+  getBonusDetail: (params) => {
+    console.log('axios params', params)
+    return axios.get('/bonus/batch-details', { params })
+  },
+  botRepeat: (robot_id, body) => {
+    return axios.post('/user/robots/' + robot_id + '/auto-repeat', body)
+  },
+  getProfitGroup: () => {
+    return axios.get('/user/profit/group')
   },
 }
 

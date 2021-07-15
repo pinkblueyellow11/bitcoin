@@ -19,12 +19,12 @@ export default function LoginContainer(props) {
     try {
       const result = await agent.bot.drawCoin(body)
       setIsWaiting(false)
-      //return result
+      return result
     } catch (error) {
       console.log('[container/Home] getCoinCost error', error)
       setErrorMsg(ERROR_STATUS[error.status])
       setIsWaiting(false)
-      //return error
+      return error
     }
   }
 
@@ -47,5 +47,5 @@ export default function LoginContainer(props) {
     getUsdtTrans()
   }, [])
 
-  return <Withdrawal usdtTrans={usdtTrans} drawCoin={drawCoin} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
+  return <Withdrawal usdtTrans={usdtTrans} drawCoin={drawCoin} getUsdtTrans={getUsdtTrans} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
 }

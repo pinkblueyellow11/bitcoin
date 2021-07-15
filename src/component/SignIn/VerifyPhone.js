@@ -23,6 +23,7 @@ import Spacer from '../UI/Spacer'
 import config from '../../constant/config'
 import Spinner from 'react-native-loading-spinner-overlay'
 import { CodeField, Cursor, useClearByFocusCell } from 'react-native-confirmation-code-field'
+import dayjs from 'dayjs'
 
 const { isDevEnv } = config
 
@@ -37,7 +38,7 @@ export default function VerifyPhone(props) {
     emailAccount,
     passwordValue,
     introducCode,
-    selectedValue,
+    account_prefix,
   } = props
   const navigation = useNavigation()
   const [value, setValue] = useState('')
@@ -45,6 +46,8 @@ export default function VerifyPhone(props) {
     value,
     setValue,
   })
+  const [isTimer, setIsTimer] = useState(true)
+  const [count, setCount] = useState(config.VERIFICATION_COUNTDOWN_TIME)
 
   const handleRegister = async () => {
     if (!value) return
@@ -55,7 +58,7 @@ export default function VerifyPhone(props) {
       recommend_code: introducCode,
     }
 
-    if (isPhoneAccount) body.account_prefix = selectedValue
+    if (isPhoneAccount) body.account_prefix = account_prefix
     const result = await register(body)
     if (!result.message) {
       setErrorMsg(null)
@@ -75,11 +78,29 @@ export default function VerifyPhone(props) {
     Alert.alert('註冊失敗', errorMsg, [
       {
         text: '好',
-        onPress: () => {},
+        onPress: () => { },
       },
     ])
     setErrorMsg(null)
   }, [errorMsg])
+
+  useEffect(() => {
+    if (!isTimer) return
+    const startTime = dayjs().toISOString()
+    //倒數計時器，useInterval(每1秒會呼叫callback,如果倒數秒數>0則，delay 1秒)
+    const timerId = setInterval(() => {
+      const duration = dayjs().unix() - dayjs(startTime).unix()
+      const countTime = config.VERIFICATION_COUNTDOWN_TIME - duration
+      if (countTime >= 0) setCount(countTime)
+      else {
+        setIsTimer(false)
+        setCount(config.VERIFICATION_COUNTDOWN_TIME)
+        clearInterval(timerId)
+      }
+    }, count >= 0 ? 1000 : null)
+    return () => clearInterval(timerId);
+  }, [isTimer])
+
 
   return (
     <Container>
@@ -123,6 +144,11 @@ export default function VerifyPhone(props) {
             </View>
           )}
         />
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ color: Colors.brandText }}>
+            {count === config.VERIFICATION_COUNTDOWN_TIME ? '寄送驗證碼' : count + '後可重新獲取驗證碼'}
+          </Text>
+        </View>
       </View>
       <Spinner visible={isWaiting} color={Colors.mainColor} />
     </Container>

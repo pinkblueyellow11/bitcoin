@@ -31,4 +31,7 @@ export default {
   Withdrawal: 'Withdrawal',
   ReChargeUpdate: 'ReChargeUpdate',
   CoverUp: 'CoverUp',
+  ReChargeRecord: 'ReChargeRecord',
+  ForgetPassword: 'ForgetPassword',
+  TaskProfitRecord: 'TaskProfitRecord',
 }

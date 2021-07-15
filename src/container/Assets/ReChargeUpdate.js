@@ -9,16 +9,14 @@ import Constants from 'expo-constants'
 const INVALID_TOKEN = 401002
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
 
   const upReceipt = async (formData) => {
     setIsWaiting(true)
     try {
-      console.log('formData', formData)
       const result = await agent.bot.upReceipt(formData)
-      console.log('upReceipt result', result)
       setIsWaiting(false)
       return result
     } catch (error) {
@@ -29,5 +27,5 @@ export default function LoginContainer(props) {
     }
   }
 
-  return <ReChargeUpdate upReceipt={upReceipt} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  return <ReChargeUpdate upReceipt={upReceipt} isWaiting={isWaiting} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
 }

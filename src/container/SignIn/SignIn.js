@@ -10,11 +10,12 @@ export default function LoginContainer(props) {
   const [errorMsg, setErrorMsg] = useState(null)
 
   const sendEmail = async (body) => {
+    console.log('sendEmail body', body)
     setIsWaiting(true)
     try {
       const result = await agent.Auth.registerVerifyEmail(body)
       setIsWaiting(false)
-      console.log('result', result)
+      console.log('sendEmail result', result)
       return result.data
     } catch (error) {
       console.log('[container/SignIn] sendEmail error', error)
@@ -24,5 +25,21 @@ export default function LoginContainer(props) {
     }
   }
 
-  return <SignIn id={id} sendEmail={sendEmail} isWaiting={isWaiting} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />
+  const register = async (body) => {
+    setIsWaiting(true)
+    console.log('register body', body)
+    try {
+      const result = await agent.Auth.register(body)
+      console.log('register result', result)
+      setIsWaiting(false)
+      return result
+    } catch (error) {
+      console.log('register error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
+  return <SignIn id={id} sendEmail={sendEmail} register={register} isWaiting={isWaiting} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />
 }

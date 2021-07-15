@@ -11,8 +11,9 @@ export default {
   isDevEnv,
 
   // API
-  apiBaseUrl: isDevEnv ? 'https://st-dev.shentong.app/api' : 'https://st-dev.shentong.app/api',
-
+  apiBaseUrl: isDevEnv ? 'https://app.shentong.app/api' : 'https://app.shentong.app/api',
+  // 正式：app.shentong.app
+  // 測試：st-dev.shentong.app
   // Async Storage Token
   ASYNC_STORAGE: {
     LOGIN_INFO: 'login_info',
@@ -20,4 +21,6 @@ export default {
 
   // 手機驗證碼位數
   VERIFICATION_CODE_CELL_COUNT: 6,
+  // 手機驗證碼冷卻時間
+  VERIFICATION_COUNTDOWN_TIME: 180,
 }

@@ -34,6 +34,13 @@ const INPUT_FIELD = {
 
 const iconSize = 18
 
+const SUCCESS_CODE = 200
+
+const PHONE_TYPE = {
+  tw: '886',
+  cn: '86'
+}
+
 function Login(props) {
   const { token, logIn, logOut, isWaiting, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
@@ -43,7 +50,7 @@ function Login(props) {
   const [focusedInput, setFocusedInput] = useState(null)
   const [activeSubmit, setActiveSubmit] = useState(false)
   const [isPhoneAccount, setIsPhoneAccount] = useState(true)
-  const [selectedValue, setSelectedValue] = useState('+886')
+  const [selectedValue, setSelectedValue] = useState(PHONE_TYPE.tw)
 
   const storeLogout = async () => {
     try {
@@ -85,12 +92,12 @@ function Login(props) {
     }
     if (isPhoneAccount) body.account_prefix = selectedValue
     const result = await logIn(body)
-    if (!result.message) {
+    if (result.status === SUCCESS_CODE) {
       setErrorMsg(null)
       storeLogin()
       setAccountValue('')
       setPasswordValue('')
-      navigation.navigate(screenName.Home)
+      navigation.reset(screenName.Home)
     }
   }
 
@@ -108,7 +115,7 @@ function Login(props) {
       Alert.alert('錯誤訊息', errorMsg, [
         {
           text: '確定',
-          onPress: () => {},
+          onPress: () => { },
         },
       ])
       setErrorMsg(null)
@@ -116,7 +123,7 @@ function Login(props) {
   }, [errorMsg])
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       try {
         const result = await AsyncStorage.getItem(config.ASYNC_STORAGE.LOGIN_INFO)
         const parsedResult = result ? JSON.parse(result) : {}
@@ -126,7 +133,6 @@ function Login(props) {
             password: parsedResult.password,
           }
           if (parsedResult.isPhoneAccount) body.account_prefix = parsedResult.account_prefix
-          console.log('body', body)
           const result = await logIn(body)
           if (!result.message) {
             setErrorMsg(null)
@@ -203,8 +209,8 @@ function Login(props) {
                 selectedValue={selectedValue}
                 onValueChange={(value) => setSelectedValue(value)}
               >
-                <Picker.Item label="+886" value="+886" />
-                <Picker.Item label="+86" value="+86" />
+                <Picker.Item label="+886" value={PHONE_TYPE.tw} />
+                <Picker.Item label="+86" value={PHONE_TYPE.cn} />
               </Picker>
             </View>
           )}
@@ -242,7 +248,7 @@ function Login(props) {
             />
           </Item>
           <Spacer size={7} flex={0} />
-          <Pressable style={{ paddingVertical: 8 }} onPress={() => {}}>
+          <Pressable style={{ paddingVertical: 8 }} onPress={() => navigation.navigate(screenName.ForgetPassword)}>
             <Text style={[componentProps.fontBodySmall6, { color: Colors.redText, textAlign: 'right' }]}>
               忘記密碼?
             </Text>

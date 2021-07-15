@@ -35,6 +35,7 @@ import ImagePicker from 'react-native-image-crop-picker'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { askPermissionOriginal } from '../../lib/appSetting'
 import * as Permissions from 'expo-permissions'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 const INPUT_FIELD = {
   amount: 'amount',
@@ -42,7 +43,7 @@ const INPUT_FIELD = {
 }
 
 function ReChargeUpdate(props) {
-  const { upReceipt, errorMsg, setErrorMsg } = props
+  const { upReceipt, isWaiting, errorMsg, setErrorMsg } = props
   const navigation = useNavigation()
 
   const { showActionSheetWithOptions } = useActionSheet()
@@ -77,6 +78,7 @@ function ReChargeUpdate(props) {
   }, [amount, blocktrainTransId, profilePicBase64])
 
   const handleSubmit = async () => {
+
     const formData = new FormData()
     formData.append('amount', amount)
     formData.append('blocktrain_trans_id', blocktrainTransId)
@@ -210,6 +212,7 @@ function ReChargeUpdate(props) {
           </Text>
         </Button>
       </ScrollView>
+      <Spinner visible={isWaiting} />
     </Container>
   )
 }

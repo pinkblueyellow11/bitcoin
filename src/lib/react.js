@@ -37,6 +37,7 @@ export function useInterval(callback, delay) {
       savedCallback.current()
     }
     if (delay !== null) {
+      console.log('delay', delay)
       const id = setInterval(tick, delay)
       return () => clearInterval(id)
     }

@@ -53,9 +53,10 @@ const INPUT_FIELD = {
 }
 
 function Withdrawal(props) {
-  const { usdtTrans, drawCoin, errorMsg, setErrorMsg, isWaiting } = props
+  const { usdtTrans, drawCoin, getUsdtTrans, errorMsg, setErrorMsg, isWaiting } = props
   const navigation = useNavigation()
 
+  const [usdtTransArrayList, setUsdtTransArrayList] = useState(null)
   const [requestAddress, setRequestAddress] = useState('')
   const [count, setCount] = useState('')
   const [handlingFee, setHandlingFee] = useState('')
@@ -69,9 +70,22 @@ function Withdrawal(props) {
       withdraw_address: requestAddress,
     }
     const result = await drawCoin(body)
-    // if (!result.message) {
-    //   setErrorMsg(null)
-    // }
+    console.log('Withdrawal body', body)
+    console.log('Withdrawal result', result)
+    if (!result.message) {
+      setErrorMsg(null)
+      Alert.alert('成功', '', [
+        {
+          text: '確定',
+          onPress: () => {
+            setRequestAddress('')
+            setCount('')
+            getUsdtTrans()
+          },
+        },
+      ])
+      setErrorMsg(null)
+    }
   }
 
   useEffect(() => {
@@ -98,6 +112,12 @@ function Withdrawal(props) {
       setErrorMsg(null)
     }
   }, [errorMsg])
+
+  useEffect(() => {
+    if (!usdtTrans) return
+    const drawalArrayList = usdtTrans.filter((value) => value.type === RECORD_TYPE.pickUp)
+    setUsdtTransArrayList(drawalArrayList)
+  }, [usdtTrans])
 
   return (
     <Container style={{}}>
@@ -199,19 +219,20 @@ function Withdrawal(props) {
           </View>
         </View>
         <Spacer size={16} flex={0} />
-        <ScrollView>
+        <ScrollView >
           {
-            usdtTrans && usdtTrans.map((item, index) => {
+            Array.isArray(usdtTransArrayList) && usdtTransArrayList.length !== 0 && usdtTransArrayList.map((item, index) => {
               const formatDate = 'YYYY/MM/DD HH:mm:ss'
               const createdAt = dayjs(item.created_at).format(formatDate)
               return (<View key={index} style={[styles.rowStyle, { paddingVertical: 16 }]}>
                 <Text>{createdAt}</Text>
                 <Text>{parseFloat(item.amount)}</Text>
-                <Text>{item.type === RECORD_TYPE.pickUp ? '提領' : '充值'}</Text>
+                <Text>提領</Text>
                 <Text>{STATUS_TYPE[item.status]}</Text>
               </View>)
             })
           }
+          <Spacer size={500} flex={0} />
         </ScrollView>
       </View>
       <Spinner visible={isWaiting} />

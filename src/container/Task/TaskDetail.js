@@ -23,8 +23,6 @@ export default function LoginContainer(props) {
       const result = await agent.bot.getRobotDetail(params)
       setIsWaiting(false)
       const index = result.data.length - 1
-      console.log('getRobotDetail', result.data)
-      console.log('getRobotDetail2', result.data[index])
       setTaskDetail(result.data[index])
       setRefreshBot(true)
     } catch (error) {
@@ -55,12 +53,26 @@ export default function LoginContainer(props) {
     try {
       const result = await agent.bot.outOfWarehouse(id)
       setIsWaiting(false)
-      getRobot()
       getRobotDetail(id)
       return result
     } catch (error) {
       console.log('[container/Task/TaskDetail] outOfWarehouse error', error)
       setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
+  const botRepeat = async (id, body) => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.botRepeat(id, body)
+      setIsWaiting(false)
+      getRobotDetail(id)
+      return result
+    } catch (error) {
+      console.log('[container/Task/TaskDetail] botRepeat error', error)
+      setErrorMsg(error.status === 422 ? '系統錯誤' : ERROR_STATUS[error.status])
       setIsWaiting(false)
       return error
     }
@@ -72,6 +84,6 @@ export default function LoginContainer(props) {
   }, [id])
 
   return (
-    <TaskDetail getRobotDetail={getRobotDetail} outOfWarehouse={outOfWarehouse} closeRobot={closeRobot} taskDetail={taskDetail} profitAndLossPeasant={profitAndLossPeasant} currentPrice={currentPrice} totalProfit={totalProfit} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} setIsWaiting={setIsWaiting} />
+    <TaskDetail botRepeat={botRepeat} getRobotDetail={getRobotDetail} outOfWarehouse={outOfWarehouse} closeRobot={closeRobot} taskDetail={taskDetail} profitAndLossPeasant={profitAndLossPeasant} currentPrice={currentPrice} totalProfit={totalProfit} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} setIsWaiting={setIsWaiting} />
   )
 }
