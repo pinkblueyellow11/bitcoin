@@ -134,7 +134,7 @@ export default function SignIn(props) {
         recommend_code: introducCode,
       }
 
-      if (isPhoneAccount) body.account_prefix = account_prefix
+      if (isPhoneAccount) body.account_prefix = selectedValue
       const result = await register(body)
       if (!result.message) {
         setErrorMsg(null)

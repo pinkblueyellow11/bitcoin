@@ -35,28 +35,28 @@ export default function LoginContainer(props) {
   }
 
 
-  const getBonusOrder = async () => {
-    setIsWaiting(true)
-    try {
-      const result = await agent.bot.getBonusOrder()
-      setIsWaiting(false)
-      console.log('getBonusOrder result', result)
-      setBonusTotal(result?.data?.sum_surplus)
-      setBonusInfo(result?.data)
-    } catch (error) {
-      console.log('[container/Assets] getBonusOrder error', error)
-      setErrorMsg(ERROR_STATUS[error.status])
-      setIsWaiting(false)
-    }
-  }
+  // const getBonusOrder = async () => {
+  //   setIsWaiting(true)
+  //   try {
+  //     const result = await agent.bot.getBonusOrder()
+  //     setIsWaiting(false)
+  //     console.log('getBonusOrder result', result)
+  //     setBonusTotal(result?.data?.sum_surplus)
+  //     setBonusInfo(result?.data)
+  //   } catch (error) {
+  //     console.log('[container/Assets] getBonusOrder error', error)
+  //     setErrorMsg(ERROR_STATUS[error.status])
+  //     setIsWaiting(false)
+  //   }
+  // }
 
-  const getBonusDetail = async (params) => {
+  const getBonusDetail = async () => {
     setIsWaiting(true)
     try {
-      const result = await agent.bot.getBonusDetail(params)
+      const result = await agent.bot.getBonusDetail()
       setIsWaiting(false)
-      console.log('getBonusDetail result', result.data.bonus_details)
-      //setBonusTotal(result?.data?.sum_surplus)
+      console.log('getBonusDetail result', result.data)
+      setBonusInfo(result?.data?.bonus_details)
     } catch (error) {
       console.log('[container/Assets] getBonusDetail error', error)
       setErrorMsg(ERROR_STATUS[error.status])
@@ -64,21 +64,12 @@ export default function LoginContainer(props) {
     }
   }
 
-  useEffect(() => {
-    console.log('bonusInfo', bonusInfo)
-    if (!Array.isArray(bonusInfo?.bonus_orders) || bonusInfo?.bonus_orders.length === 0) return
-    let idArray = []
-    bonusInfo.bonus_orders.map((i) => idArray.push(i.bonus_order_id))
-    const params = { bonus_order_ids: idArray }
-    getBonusDetail(params)
-  }, [bonusInfo])
 
   useEffect(() => {
-    console.log('執行 getWalletHistory')
     getWalletHistory()
-    getBonusOrder()
+    getBonusDetail()
   }, [])
 
 
-  return <Assets getUser={getUser} getBonusOrder={getBonusOrder} getWalletHistory={getWalletHistory} usdtAmount={usdtAmount} bonusTotal={bonusTotal} walletHistory={walletHistory} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
+  return <Assets bonusInfo={bonusInfo} getBonusDetail={getBonusDetail} getUser={getUser} getWalletHistory={getWalletHistory} usdtAmount={usdtAmount} bonusTotal={bonusTotal} walletHistory={walletHistory} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
 }

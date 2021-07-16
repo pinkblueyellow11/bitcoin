@@ -79,9 +79,8 @@ const bot = {
   getBonusOrder: () => {
     return axios.get('/bonus/orders')
   },
-  getBonusDetail: (params) => {
-    console.log('axios params', params)
-    return axios.get('/bonus/batch-details', { params })
+  getBonusDetail: () => {
+    return axios.get('bonus/details')
   },
   botRepeat: (robot_id, body) => {
     return axios.post('/user/robots/' + robot_id + '/auto-repeat', body)

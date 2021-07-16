@@ -45,8 +45,14 @@ const BOX_INDEX = {
   three: 'three',
 }
 
+const BONUS_TYPE = {
+  recommend_bonus: 'recommend_bonus',
+  lv5_bonus: 'lv5_bonus',
+  team_bouns: 'team_bouns',
+}
+
 function Assets(props) {
-  const { getUser, getWalletHistory, getBonusOrder, usdtAmount, bonusTotal, walletHistory, errorMsg, setErrorMsg, isWaiting } = props
+  const { bonusInfo, getBonusDetail, getUser, getWalletHistory, usdtAmount, bonusTotal, walletHistory, errorMsg, setErrorMsg, isWaiting } = props
   const navigation = useNavigation()
 
   const [boxIndex, setBoxIndex] = useState(BOX_INDEX.one)
@@ -66,7 +72,7 @@ function Assets(props) {
 
   const handleRefresh = async () => {
     await getWalletHistory()
-    await getBonusOrder()
+    await getBonusDetail()
     getUser()
   }
 
@@ -101,8 +107,8 @@ function Assets(props) {
           <View style={[styles.boxView, { marginLeft: 12 }]}>
             <Text style={styles.boxText1}>獎金</Text>
             <Spacer size={10} flex={0} />
-            {/* {<Text style={styles.boxText2}>{'即將開放'}</Text>} */}
-            {bonusTotal !== null && <Text style={styles.boxText2}>{parseFloat(parseFloat(bonusTotal).toFixed(4))}</Text>}
+            {<Text style={styles.boxText2}>{'即將開放'}</Text>}
+            {/* {bonusTotal !== null && <Text style={styles.boxText2}>{parseFloat(parseFloat(bonusTotal).toFixed(4))}</Text>} */}
           </View>
         </View>
         {/* <View style={{ backgroundColor: Colors.mainBgColor }}>
@@ -225,6 +231,45 @@ function Assets(props) {
               )
             })
           }
+          {/* {
+            boxIndex === BOX_INDEX.three && Array.isArray(bonusInfo) && bonusInfo.length !== 0 && bonusInfo.map((item, index) => {
+              const formatDate = 'YYYY/MM/DD HH:mm:ss'
+              const createdAt = dayjs(item.created_at).format(formatDate)
+              let str = ''
+              const account = item?.form_user_account
+              const pAccount = account.replace(account.slice(3, account.length - 3), '******')
+
+              switch (item?.bonus_type) {
+                case BONUS_TYPE.recommend_bonus:
+                  if (item.to_depth === 1) str = '(1)'
+                  else str = '(2)'
+                  break
+                case BONUS_TYPE.lv5_bonus:
+                  str = '團隊獎金'
+                  break
+                case BONUS_TYPE.team_bouns:
+                  str = 'LV5同階獎金'
+                  break
+                default:
+                  break
+              }
+
+              return (
+                <View key={index} style={[styles.rowStyle, , { paddingVertical: 16, flexWrap: 'wrap' }]}>
+                  <View style={styles.rowItem}>
+                    <Text>{createdAt}</Text>
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text>{parseFloat(item.total_bonus)}</Text>
+                  </View>
+                  <View style={styles.rowItem}>
+                    <Text>{str}{(item.to_depth === 1 || item.to_depth === 2) && pAccount}</Text>
+                  </View>
+                </View>
+              )
+            })
+          } */}
+          <Spacer size={500} flex={0} />
         </ScrollView>
       </View>
       <Spinner visible={isWaiting} />
@@ -281,7 +326,6 @@ const styles = StyleSheet.create({
   },
   rowStyle: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
   },
   rowItem: {
     flex: 1,
