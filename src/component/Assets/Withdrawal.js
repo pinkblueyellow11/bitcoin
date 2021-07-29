@@ -53,7 +53,7 @@ const INPUT_FIELD = {
 }
 
 function Withdrawal(props) {
-  const { usdtTrans, drawCoin, getUsdtTrans, errorMsg, setErrorMsg, isWaiting } = props
+  const { usdtTrans, bonusApplyWithdrawal, getBonusRecord, errorMsg, setErrorMsg, isWaiting } = props
   const navigation = useNavigation()
 
   const [usdtTransArrayList, setUsdtTransArrayList] = useState(null)
@@ -66,13 +66,11 @@ function Withdrawal(props) {
 
   const handleSubmit = async () => {
     const body = {
-      amount: count,
+      bonus: count,
       withdraw_address: requestAddress,
     }
-    const result = await drawCoin(body)
-    console.log('Withdrawal body', body)
-    console.log('Withdrawal result', result)
-    if (!result.message) {
+    const result = await bonusApplyWithdrawal(body)
+    if (result.result === "success") {
       setErrorMsg(null)
       Alert.alert('成功', '', [
         {
@@ -80,11 +78,19 @@ function Withdrawal(props) {
           onPress: () => {
             setRequestAddress('')
             setCount('')
-            getUsdtTrans()
+            getBonusRecord()
           },
         },
       ])
+    } else if (result.result === "warning") {
       setErrorMsg(null)
+      Alert.alert("很抱歉獎金餘額不足。", '', [
+        {
+          text: '確定',
+          onPress: () => {
+          },
+        },
+      ])
     }
   }
 
@@ -114,8 +120,9 @@ function Withdrawal(props) {
   }, [errorMsg])
 
   useEffect(() => {
-    if (!usdtTrans) return
-    const drawalArrayList = usdtTrans.filter((value) => value.type === RECORD_TYPE.pickUp)
+    console.log('usdtTrans', usdtTrans)
+    if (!Array.isArray(usdtTrans)) return
+    const drawalArrayList = usdtTrans.filter((value) => value.bonus_apply_type === 'withdrawal')
     setUsdtTransArrayList(drawalArrayList)
   }, [usdtTrans])
 
@@ -129,7 +136,7 @@ function Withdrawal(props) {
           </Pressable>
         </Left>
         <Body>
-          <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>提幣</Text>
+          <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>獎金提幣</Text>
         </Body>
         <Right></Right>
       </Header>
@@ -224,11 +231,31 @@ function Withdrawal(props) {
             Array.isArray(usdtTransArrayList) && usdtTransArrayList.length !== 0 && usdtTransArrayList.map((item, index) => {
               const formatDate = 'YYYY/MM/DD HH:mm:ss'
               const createdAt = dayjs(item.created_at).format(formatDate)
+
+              let str = ''
+              switch (item.bonus_apply_status) {
+                case 'applying':
+                  str = '申請中'
+                  break;
+                case 'overrule':
+                  str = '申請失敗'
+                  break;
+                case 'revoke':
+                  str = '撤銷'
+                  break;
+                case 'pass':
+                  str = '通過'
+                  break;
+                default:
+                  str = '-'
+                  break;
+              }
+
               return (<View key={index} style={[styles.rowStyle, { paddingVertical: 16 }]}>
                 <Text>{createdAt}</Text>
-                <Text>{parseFloat(item.amount)}</Text>
+                <Text>{parseFloat(item.bonus_apply)}</Text>
                 <Text>提領</Text>
-                <Text>{STATUS_TYPE[item.status]}</Text>
+                <Text>{str}</Text>
               </View>)
             })
           }

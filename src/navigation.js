@@ -20,7 +20,6 @@ import TaskDetail from './container/Task/TaskDetail'
 import TaskProfitRecord from './container/Task/TaskProfitRecord'
 import ChooseCoinType from './container/Task/ChooseCoinType'
 import TaskRecord from './container/Task/TaskRecord'
-import CoverUp from './container/Task/CoverUp'
 import Assets from './container/Assets/Assets'
 import ReCharge from './container/Assets/ReCharge'
 import ReChargeUpdate from './container/Assets/ReChargeUpdate'
@@ -221,11 +220,6 @@ export default function Navigation(props) {
             <Stack.Screen
               name={screentName.TaskRecord}
               component={TaskRecord}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name={screentName.CoverUp}
-              component={CoverUp}
               options={{ headerShown: false }}
             />
           </>

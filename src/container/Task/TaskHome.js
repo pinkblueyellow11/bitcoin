@@ -131,6 +131,22 @@ export default function LoginContainer(props) {
     }
   }
 
+  const manualPurchase = async (id, body) => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.manualPurchase(id, body)
+      setIsWaiting(false)
+      getRobot()
+      console.log('manualPurchase result', result)
+      return result
+    } catch (error) {
+      console.log('[container/Task/TaskHome] manualPurchase error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
   useEffect(() => {
     getProfitToday()
     getProfitMonth()
@@ -144,6 +160,7 @@ export default function LoginContainer(props) {
 
   return (
     <TaskHome
+      manualPurchase={manualPurchase}
       getRobot={getRobot}
       closeRobot={closeRobot}
       closeRobotPurchase={closeRobotPurchase}

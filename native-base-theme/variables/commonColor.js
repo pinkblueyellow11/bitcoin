@@ -278,9 +278,9 @@ export default {
     return this.textColor
   },
   placeholderTColor: '#E2DFDF',
-  grayText: '#C3C1C1',
-  grayText2: '#C8C8C8',
-  grayText3: '#928F94',
+  grayText: '#000000',
+  grayText2: '#0000000',
+  grayText3: '#000000',
   redText: '#FF8879',
   greenText: '#42D651',
   grayLine: '#979797',

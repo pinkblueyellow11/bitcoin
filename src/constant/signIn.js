@@ -1,6 +1,6 @@
 export const ERROR_STATUS = {
   422: '格式錯誤',
-  101001: 'Email碼已註冊',
+  101001: '帳號已註冊',
   101003: '簡訊驗證碼錯誤',
   401001: '帳密驗證錯誤',
   103001: '電話號碼未註冊過',
@@ -15,4 +15,5 @@ export const ERROR_STATUS = {
   101004: 'Referrer does not exist',
   601006: 'trade account balance is not enough',
   601013: 'No inventory',
+  601009: 'Permission deny',
 }

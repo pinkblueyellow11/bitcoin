@@ -17,7 +17,6 @@ import {
   PermissionsAndroid,
   Linking,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import Spinner from 'react-native-loading-spinner-overlay'
 import componentProps from '../../constant/componentProps'
 import { useNavigation } from '@react-navigation/native'
@@ -27,19 +26,20 @@ import Constants from 'expo-constants'
 import { Button, Item, Input, Container, Content, Label, Header, Left, Body, Right, Col } from 'native-base'
 import { StatusBar } from 'expo-status-bar'
 import Spacer from '../UI/Spacer'
-import { FONT_WEIGHT } from '../../constant/componentProps/typography'
 import config from '../../constant/config'
-import Carousel from 'react-native-snap-carousel'
 import { Feather } from '@expo/vector-icons'
+import CoverUpModal from './CoverUp'
 
 const initialLayout = { width: Dimensions.get('window').width }
 
 function TaskHome(props) {
-  const { getUsdtBalance, usdtAmount, profitToday, getProfitToday, profitMonth, getProfitMonth, usdtBalance, getRobot, closeRobot, closeRobotPurchase, outOfWarehouse, robotArray, api_key_setted, coinCurrentPrice, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
+  const { manualPurchase, getUsdtBalance, usdtAmount, profitToday, getProfitToday, profitMonth, getProfitMonth, usdtBalance, getRobot, closeRobot, closeRobotPurchase, outOfWarehouse, robotArray, api_key_setted, coinCurrentPrice, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
   const navigation = useNavigation()
 
   const [totalPosition, setTotalPosition] = useState(null)
   const [totalProfitArrayList, setTotalProfitArrayList] = useState(null)
+  const [modalVisible, setModalVisible] = useState(false)
+  const [modalVisibleId, setModalVisibleId] = useState(null)
 
   const handleRefresh = async () => {
     await getRobot()
@@ -84,6 +84,26 @@ function TaskHome(props) {
     const result = await outOfWarehouse(id)
   }
 
+  // 一建加倉
+  const handleManualPurchase = async (amountOfMarginCall) => {
+    if (!modalVisibleId) return
+    const body = {
+      amount: amountOfMarginCall,
+    }
+    const result = await manualPurchase(modalVisibleId, body)
+    if (!result.message) {
+      setErrorMsg(null)
+      Alert.alert('成功', '', [
+        {
+          text: '確定',
+          onPress: () => { setModalVisible(false) },
+        },
+      ])
+      return true
+    }
+    return false
+  }
+
   useEffect(() => {
     if (errorMsg !== null) {
       console.log('errorMsg', errorMsg)
@@ -123,7 +143,7 @@ function TaskHome(props) {
   }, [])
 
   return (
-    <Container style={{}}>
+    <Container >
       <Header transparent style={{ backgroundColor: Colors.brandRed80 }}>
         <StatusBar style="dark" backgroundColor="transparent" />
         <Left style={{ flex: 1 }}></Left>
@@ -176,7 +196,7 @@ function TaskHome(props) {
           <View style={[styles.boxView, { marginRight: 16 }]}>
             <Text style={styles.boxText1}>USDT餘額</Text>
             <Spacer size={10} flex={0} />
-            {usdtBalance !== null ? <Text style={styles.boxText2}>{parseFloat(usdtBalance).toString()}</Text> : <Text style={styles.boxText2}>-</Text>}
+            {usdtBalance !== null ? <Text style={styles.boxText2}>{Math.floor(usdtBalance)}</Text> : <Text style={styles.boxText2}>-</Text>}
           </View>
           <View style={[styles.boxView, { marginLeft: 12 }]}>
             <Text style={styles.boxText1}>總持倉</Text>
@@ -210,8 +230,23 @@ function TaskHome(props) {
               <View key={index}>
                 <Spacer size={12} flex={0} />
                 <View style={styles.listTitleBox} >
-                  <Pressable onPress={() => navigation.navigate(screenName.TaskDetail, { id: value[0].robot_id, profitAndLossPeasant, currentPrice, totalProfit: totalProfitArrayList[index] })}>
+                  <Pressable onPress={() => navigation.navigate(screenName.TaskDetail, { id: value[0].robot_id, profitAndLossPeasant, currentPrice, totalProfit: totalProfitArrayList[index], robotArray })}>
                     <Text style={styles.listTitle}>{coinType}/USDT</Text>
+                  </Pressable>
+                  <Pressable onPress={() => {
+                    const str = !!value[0]?.purchase_enabled ? '暫停買入' : '恢復買入'
+                    Alert.alert('確定要' + str, '', [
+                      {
+                        text: '取消',
+                        onPress: () => { },
+                      },
+                      {
+                        text: '確定',
+                        onPress: () => { handleCloseRobotPurchase(value[0].robot_id, value[0]?.purchase_enabled) },
+                      },
+                    ])
+                  }}>
+                    <Text style={[styles.listButtonText, { color: value[0]?.purchase_enabled ? '#11AB2C' : Colors.redText }]}>{value[0].purchase_enabled ? '暫停買入' : '恢復買入'}</Text>
                   </Pressable>
                   <Pressable onPress={() => {
                     const str = !!value[0]?.enabled ? '關閉' : '開啟'
@@ -238,7 +273,7 @@ function TaskHome(props) {
                   <Text >排程編號 {value[0].robot_id}</Text>
                 </View>
                 <Spacer size={12} flex={0} />
-                <Pressable style={styles.listBox} onPress={() => navigation.navigate(screenName.TaskDetail, { id: value[0].robot_id, profitAndLossPeasant, currentPrice, totalProfit: totalProfitArrayList[index] })}>
+                <Pressable style={styles.listBox} onPress={() => navigation.navigate(screenName.TaskDetail, { id: value[0].robot_id, profitAndLossPeasant, currentPrice, totalProfit: totalProfitArrayList[index], robotArray })}>
                   <View style={{ flexDirection: 'row' }}>
                     <View style={styles.litBoxRow}>
                       <Text style={styles.listBoxTitle}>持倉量</Text>
@@ -291,25 +326,13 @@ function TaskHome(props) {
                 </Pressable>
                 <Spacer size={8} flex={0} />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                  <Pressable onPress={() => {
-                    const str = !!value[0]?.purchase_enabled ? '暫停買入' : '恢復買入'
-                    Alert.alert('確定要' + str, '', [
-                      {
-                        text: '取消',
-                        onPress: () => { },
-                      },
-                      {
-                        text: '確定',
-                        onPress: () => { handleCloseRobotPurchase(value[0].robot_id, value[0]?.purchase_enabled) },
-                      },
-                    ])
+                  <Pressable style={styles.litBoxRow} onPress={() => {
+                    setModalVisibleId(value[0].robot_id)
+                    setModalVisible(true)
                   }}>
-                    <Text style={styles.listButtonText}>{value[0].purchase_enabled ? '暫停買入' : '恢復買入'}</Text>
-                  </Pressable>
-                  <Pressable onPress={() => navigation.navigate(screenName.CoverUp, { robot_id: value[0]?.robot_id })}>
                     <Text style={styles.listButtonText}>一鍵加倉</Text>
                   </Pressable>
-                  <Pressable onPress={() => {
+                  <Pressable style={styles.litBoxRow} onPress={() => {
                     Alert.alert('確定要一鍵平倉', '', [
                       {
                         text: '取消',
@@ -323,6 +346,7 @@ function TaskHome(props) {
                   }}>
                     <Text style={styles.listButtonText}>一鍵平倉</Text>
                   </Pressable>
+                  <View style={styles.litBoxRow}></View>
                 </View>
                 {/* <Pressable
                   onPress={() => navigation.navigate(screenName.TaskDetail, { taskInfo: value })}
@@ -359,6 +383,9 @@ function TaskHome(props) {
 
         <Spacer size={100} flex={0} />
       </ScrollView>
+      <View >
+        <CoverUpModal handleSubmit={handleManualPurchase} transparent={true} modalVisible={modalVisible} setModalVisible={setModalVisible}></CoverUpModal>
+      </View>
       <Spinner visible={isWaiting} />
     </Container>
   )

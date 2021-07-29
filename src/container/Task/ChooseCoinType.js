@@ -7,9 +7,11 @@ import { ERROR_STATUS } from '../../constant/signIn'
 import Constants from 'expo-constants'
 
 export default function LoginContainer(props) {
-  const {} = props
+  const { } = props
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
+  // redux
+  const coinCurrentPrice = useSelector((state) => state.bot.coinCurrentPrice)
 
-  return <ChooseCoinType setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
+  return <ChooseCoinType coinCurrentPrice={coinCurrentPrice} setErrorMsg={setErrorMsg} errorMsg={errorMsg} />
 }

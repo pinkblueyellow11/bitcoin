@@ -120,7 +120,7 @@ function Invite(props) {
 const styles = StyleSheet.create({
   circleBox: {
     ...componentProps.fontError,
-    color: '#A298AE',
+    //color: '#A298AE',
     textAlign: 'center',
     marginBottom: 4,
   },

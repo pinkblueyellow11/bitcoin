@@ -35,20 +35,20 @@ export default function LoginContainer(props) {
   }
 
 
-  // const getBonusOrder = async () => {
-  //   setIsWaiting(true)
-  //   try {
-  //     const result = await agent.bot.getBonusOrder()
-  //     setIsWaiting(false)
-  //     console.log('getBonusOrder result', result)
-  //     setBonusTotal(result?.data?.sum_surplus)
-  //     setBonusInfo(result?.data)
-  //   } catch (error) {
-  //     console.log('[container/Assets] getBonusOrder error', error)
-  //     setErrorMsg(ERROR_STATUS[error.status])
-  //     setIsWaiting(false)
-  //   }
-  // }
+  const getBonusSurplus = async () => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.getBonusSurplus()
+      setIsWaiting(false)
+      console.log('getBonusSurplus result', result)
+      setBonusTotal(result?.data?.bonus_surplus)
+      setBonusInfo(result?.data)
+    } catch (error) {
+      console.log('[container/Assets] getBonusSurplus error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+    }
+  }
 
   const getBonusDetail = async () => {
     setIsWaiting(true)
@@ -64,12 +64,28 @@ export default function LoginContainer(props) {
     }
   }
 
+  const transformFuelCost = async (body) => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.transformFuelCost(body)
+      setIsWaiting(false)
+      console.log('transformFuelCost result', result)
+      return result
+    } catch (error) {
+      console.log('[container/Assets] transformFuelCost error', error)
+      setErrorMsg(ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      throw error
+    }
+  }
+
 
   useEffect(() => {
     getWalletHistory()
     getBonusDetail()
+    getBonusSurplus()
   }, [])
 
 
-  return <Assets bonusInfo={bonusInfo} getBonusDetail={getBonusDetail} getUser={getUser} getWalletHistory={getWalletHistory} usdtAmount={usdtAmount} bonusTotal={bonusTotal} walletHistory={walletHistory} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
+  return <Assets transformFuelCost={transformFuelCost} bonusInfo={bonusInfo} getBonusDetail={getBonusDetail} getUser={getUser} getWalletHistory={getWalletHistory} usdtAmount={usdtAmount} bonusTotal={bonusTotal} walletHistory={walletHistory} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} />
 }

@@ -294,7 +294,9 @@ function NewTask(props) {
               status={oneRadioChecked === RADIO_TYPE.oneRadio ? 'checked' : 'unchecked'}
               onPress={() => handleRadioChange(RADIO_TYPE.oneRadio)}
             />
-            <Text style={{}}>保守</Text>
+            <Pressable onPress={() => handleRadioChange(RADIO_TYPE.oneRadio)}>
+              <Text>保守</Text>
+            </Pressable>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <RadioButton
@@ -302,7 +304,9 @@ function NewTask(props) {
               status={twoRadioChecked === RADIO_TYPE.twoRadio ? 'checked' : 'unchecked'}
               onPress={() => handleRadioChange(RADIO_TYPE.twoRadio)}
             />
-            <Text style={{}}>平衡</Text>
+            <Pressable onPress={() => handleRadioChange(RADIO_TYPE.twoRadio)}>
+              <Text>平衡</Text>
+            </Pressable>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <RadioButton
@@ -310,7 +314,9 @@ function NewTask(props) {
               status={threeRadioChecked === RADIO_TYPE.threeRadio ? 'checked' : 'unchecked'}
               onPress={() => handleRadioChange(RADIO_TYPE.threeRadio)}
             />
-            <Text style={{}}>高頻</Text>
+            <Pressable onPress={() => handleRadioChange(RADIO_TYPE.threeRadio)}>
+              <Text>高頻</Text>
+            </Pressable>
           </View>
         </View>
         <Spacer size={32} flex={0} />

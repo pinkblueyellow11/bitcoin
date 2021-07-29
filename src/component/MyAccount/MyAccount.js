@@ -108,7 +108,7 @@ function MyAccount(props) {
               borderBottomWidth: 0.25,
               borderBottomColor: Colors.grayLine,
             }}
-            onPress={() => { }}
+            onPress={() => writeToClipboard()}
           >
             <View
               style={{

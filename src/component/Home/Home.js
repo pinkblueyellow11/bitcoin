@@ -124,7 +124,7 @@ function Home(props) {
             >
               <AntDesign name="smileo" size={24} color="white" />
             </Pressable>
-            <Text style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}>
+            <Text style={[componentProps.fontError, { textAlign: 'center', marginTop: 4 }]}>
               邀請
             </Text>
           </View>
@@ -135,7 +135,7 @@ function Home(props) {
             >
               <MaterialIcons name="groups" size={24} color="white" />
             </Pressable>
-            <Text style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}>
+            <Text style={[componentProps.fontError, { textAlign: 'center', marginTop: 4 }]}>
               社區
             </Text>
           </View>
@@ -146,7 +146,7 @@ function Home(props) {
             >
               <MaterialCommunityIcons name="api" size={24} color="white" />
             </Pressable>
-            <Text style={[componentProps.fontError, { color: '#A298AE', textAlign: 'center', marginTop: 4 }]}>
+            <Text style={[componentProps.fontError, { textAlign: 'center', marginTop: 4 }]}>
               API
             </Text>
           </View>

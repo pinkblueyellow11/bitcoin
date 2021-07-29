@@ -48,7 +48,16 @@ const INPUT_FIELD = {
 
 const PHONE_TYPE = {
   tw: '886',
-  cn: '86'
+  cn: '86',
+  a: '60',
+  b: '62',
+  c: '63',
+  d: '65',
+  e: '66',
+  f: '84',
+  g: '852',
+  h: '855',
+  i: '95',
 }
 
 export default function SignIn(props) {
@@ -111,7 +120,7 @@ export default function SignIn(props) {
     setIsShowErrorPhone(false)
     if (selectedValue === PHONE_TYPE.tw) setIsShowErrorPhone(!isValidTaiwanPhone(emailAccount))
     else if (selectedValue === PHONE_TYPE.cn) setIsShowErrorPhone(!isValidChainPhone(emailAccount))
-
+    else setIsShowErrorPhone(emailAccount.length > 11 || isNaN(Number(emailAccount)))
   }
 
   const handlePasswordBlur = () => {
@@ -220,210 +229,225 @@ export default function SignIn(props) {
         <Body></Body>
         <Right></Right>
       </Header>
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <View style={{ flex: 1 }}>
-          <ScrollView style={[{ paddingHorizontal: componentProps.contentPadding }]}>
-            <Text style={[componentProps.fontBodyBold3, { color: Colors.brandText }]}>註冊</Text>
-            <Spacer size={20} flex={0} />
-            <View style={{ flexDirection: 'row' }}>
-              <Pressable
-                onPress={() => setIsPhoneAccount(true)}
-                style={{
-                  borderColor: Colors.mainColor,
-                  borderWidth: 1,
-                  borderRightWidth: 0,
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  backgroundColor: isPhoneAccount ? Colors.mainBgColor : 'white',
-                }}
-              >
-                <Text style={[componentProps.fontBodySmall6, { color: Colors.mainColor }]}>手機</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setIsPhoneAccount(false)}
-                style={{
-                  borderColor: Colors.mainColor,
-                  borderWidth: 1,
-                  borderLeftWidth: 0,
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  backgroundColor: isPhoneAccount ? 'white' : Colors.mainBgColor,
-                }}
-              >
-                <Text style={[componentProps.fontBodySmall6, { color: Colors.mainColor }]}>Email</Text>
-              </Pressable>
-            </View>
-            <Spacer size={16} flex={0} />
-            {isPhoneAccount && (
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: Colors.brandPrimary,
-                }}
-              >
-                <Picker
-                  note
-                  mode="dropdown"
-                  style={{}}
-                  selectedValue={selectedValue}
-                  onValueChange={(value) => setSelectedValue(value)}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={{ flex: 1 }}>
+            <ScrollView style={[{ paddingHorizontal: componentProps.contentPadding }]}>
+              <Text style={[componentProps.fontBodyBold3, { color: Colors.brandText }]}>註冊</Text>
+              <Spacer size={20} flex={0} />
+              <View style={{ flexDirection: 'row' }}>
+                <Pressable
+                  onPress={() => setIsPhoneAccount(true)}
+                  style={{
+                    borderColor: Colors.mainColor,
+                    borderWidth: 1,
+                    borderRightWidth: 0,
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    backgroundColor: isPhoneAccount ? Colors.mainBgColor : 'white',
+                  }}
                 >
-                  <Picker.Item label="+886" value={PHONE_TYPE.tw} />
-                  <Picker.Item label="+86" value={PHONE_TYPE.cn} />
-                </Picker>
+                  <Text style={[componentProps.fontBodySmall6, { color: Colors.mainColor }]}>手機</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setIsPhoneAccount(false)}
+                  style={{
+                    borderColor: Colors.mainColor,
+                    borderWidth: 1,
+                    borderLeftWidth: 0,
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    backgroundColor: isPhoneAccount ? 'white' : Colors.mainBgColor,
+                  }}
+                >
+                  <Text style={[componentProps.fontBodySmall6, { color: Colors.mainColor }]}>Email</Text>
+                </Pressable>
               </View>
-            )}
-            <Spacer size={9} flex={0} />
-            <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.emailAccount}>
-              <MaterialCommunityIcons
-                name="account-outline"
-                size={iconSize}
-                color={Colors.mainColor}
-                style={{ marginLeft: 16 }}
-              />
-              <Input
-                style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
-                placeholder={isPhoneAccount ? '請輸入手機' : '請輸入Email'}
-                placeholderTextColor={Colors.placeholderTColor}
-                value={emailAccount}
-                onChangeText={setEmailAccount}
-                onFocus={() => setFocusedInput(INPUT_FIELD.emailAccount)}
-                onBlur={() => {
-                  if (isPhoneAccount) handlePhoneBlur()
-                  else setIsShowErrorPhone(false)
-                  setFocusedInput(null)
+              <Spacer size={16} flex={0} />
+              {isPhoneAccount && (
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: Colors.brandPrimary,
+                  }}
+                >
+                  <Picker
+                    note
+                    mode="dropdown"
+                    style={{}}
+                    selectedValue={selectedValue}
+                    onValueChange={(value) => setSelectedValue(value)}
+                  >
+                    <Picker.Item label="+886" value={PHONE_TYPE.tw} />
+                    <Picker.Item label="+86" value={PHONE_TYPE.cn} />
+                    <Picker.Item label="+60" value={PHONE_TYPE.a} />
+                    <Picker.Item label="+62" value={PHONE_TYPE.b} />
+                    <Picker.Item label="+63" value={PHONE_TYPE.c} />
+                    <Picker.Item label="+65" value={PHONE_TYPE.d} />
+                    <Picker.Item label="+66" value={PHONE_TYPE.e} />
+                    <Picker.Item label="+84" value={PHONE_TYPE.f} />
+                    <Picker.Item label="+852" value={PHONE_TYPE.g} />
+                    <Picker.Item label="+855" value={PHONE_TYPE.h} />
+                    <Picker.Item label="+95" value={PHONE_TYPE.i} />
+                  </Picker>
+                </View>
+              )}
+              <Spacer size={9} flex={0} />
+              <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.emailAccount}>
+                <MaterialCommunityIcons
+                  name="account-outline"
+                  size={iconSize}
+                  color={Colors.mainColor}
+                  style={{ marginLeft: 16 }}
+                />
+                <Input
+                  style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
+                  placeholder={isPhoneAccount ? '請輸入手機' : '請輸入Email'}
+                  placeholderTextColor={Colors.placeholderTColor}
+                  value={emailAccount}
+                  onChangeText={setEmailAccount}
+                  onFocus={() => setFocusedInput(INPUT_FIELD.emailAccount)}
+                  onBlur={() => {
+                    if (isPhoneAccount) handlePhoneBlur()
+                    else setIsShowErrorPhone(false)
+                    setFocusedInput(null)
+                  }}
+                />
+              </Item>
+              {isShowErrorPhone && isPhoneAccount && (
+                <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>格式錯誤</Text>
+              )}
+              <Spacer size={24} flex={0} />
+              <Pressable disabled={count === config.VERIFICATION_COUNTDOWN_TIME ? false : true} onPress={registerVerify} style={{ borderColor: Colors.mainColor, borderWidth: 1, padding: 12, alignItems: 'center' }}>
+                <Text style={{ color: Colors.mainColor }}>{count === config.VERIFICATION_COUNTDOWN_TIME ? '寄送驗證碼' : count + '後可重新獲取驗證碼'}</Text>
+              </Pressable>
+              <Spacer size={24} flex={0} />
+              <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.verifyCode}>
+                <MaterialIcons name="domain-verification" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
+                <Input
+                  style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
+                  placeholder={'請輸入驗證碼'}
+                  placeholderTextColor={Colors.placeholderTColor}
+                  value={verifyCode}
+                  keyboardType="number-pad"
+                  onChangeText={setVerifyCode}
+                  onFocus={() => setFocusedInput(INPUT_FIELD.verifyCode)}
+                  onBlur={() => {
+                    if (isShowErrorPhone) setFocusedInput(null)
+                    handlePhoneBlur()
+                  }}
+                />
+              </Item>
+
+              <Spacer size={24} flex={0} />
+              <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.passwordValue}>
+                <AntDesign name="lock" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
+                <Input
+                  style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
+                  placeholder="請輸入密碼"
+                  placeholderTextColor={Colors.placeholderTColor}
+                  value={passwordValue}
+                  onChangeText={setPasswordValue}
+                  onFocus={() => setFocusedInput(INPUT_FIELD.passwordValue)}
+                  onBlur={() => {
+                    if (isShowErrorPassword) setFocusedInput(null)
+                    handlePasswordBlur()
+                  }}
+                  secureTextEntry={true}
+                />
+              </Item>
+              <Spacer size={4} flex={0} />
+              {isShowErrorPassword && (
+                <Text style={[componentProps.errorMsg, { color: Colors.redText }]}>8~20碼, 只能是英數或_</Text>
+              )}
+              <Spacer size={20} flex={0} />
+              <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.twoPasswordValue}>
+                <AntDesign name="lock" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
+                <Input
+                  style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
+                  placeholder="請再次輸入密碼"
+                  placeholderTextColor={Colors.placeholderTColor}
+                  value={twoPasswordValue}
+                  onChangeText={setTwoPasswordValue}
+                  onFocus={() => setFocusedInput(INPUT_FIELD.twoPasswordValue)}
+                  onBlur={() => setFocusedInput(null)}
+                  secureTextEntry={true}
+                />
+              </Item>
+              <Spacer size={24} flex={0} />
+              <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.introducCode}>
+                <AntDesign
+                  name="addusergroup"
+                  size={iconSize}
+                  color={Colors.mainColor}
+                  style={{ marginLeft: 16 }}
+                />
+                <Input
+                  style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
+                  placeholder="請輸入推薦碼"
+                  placeholderTextColor={Colors.placeholderTColor}
+                  value={introducCode}
+                  onChangeText={setIntroducCode}
+                  onFocus={() => setFocusedInput(INPUT_FIELD.introducCode)}
+                  onBlur={() => setFocusedInput(null)}
+                />
+              </Item>
+              <Spacer size={4} flex={0} />
+              {isShowErrorIntroducCode && (
+                <Text style={[componentProps.errorMsg, { color: Colors.redText }]}>推薦碼為必填欄位</Text>
+              )}
+              <Spacer size={24} flex={0} />
+              <View>
+                <CheckBox
+                  onClick={() => setIsCheckedOne(!isCheckedOne)}
+                  isChecked={isCheckedOne}
+                  rightText={'我已閱讀並同意 隱私權政策 及 用戶聲明書'}
+                  rightTextStyle={[componentProps.fontBodySmall6, { color: Colors.mainColor }]}
+                  checkBoxColor={Colors.brandPrimary}
+                />
+                <Spacer size={22} />
+              </View>
+              <Button
+                full
+                disabled={!activeSubmit}
+                style={{
+                  borderRadius: componentProps.borderRadius,
+                  borderColor: Colors.mainColor,
+                  borderWidth: 1,
+                  //backgroundColor: Colors.brandPrimary,
                 }}
-              />
-            </Item>
-            <Spacer size={24} flex={0} />
-            <Pressable disabled={count === config.VERIFICATION_COUNTDOWN_TIME ? false : true} onPress={registerVerify} style={{ borderColor: Colors.mainColor, borderWidth: 1, padding: 12, alignItems: 'center' }}>
-              <Text style={{ color: Colors.mainColor }}>{count === config.VERIFICATION_COUNTDOWN_TIME ? '寄送驗證碼' : count + '後可重新獲取驗證碼'}</Text>
-            </Pressable>
-            <Spacer size={24} flex={0} />
-            <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.verifyCode}>
-              <MaterialIcons name="domain-verification" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
-              <Input
-                style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
-                placeholder={'請輸入驗證碼'}
-                placeholderTextColor={Colors.placeholderTColor}
-                value={verifyCode}
-                keyboardType="number-pad"
-                onChangeText={setVerifyCode}
-                onFocus={() => setFocusedInput(INPUT_FIELD.verifyCode)}
-                onBlur={() => {
-                  if (isShowErrorPhone) setFocusedInput(null)
-                  handlePhoneBlur()
-                }}
-              />
-            </Item>
-            {isShowErrorPhone && isPhoneAccount && (
-              <Text style={[componentProps.inputHelperText, { color: Colors.redText }]}>格式錯誤</Text>
-            )}
-            <Spacer size={24} flex={0} />
-            <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.passwordValue}>
-              <AntDesign name="lock" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
-              <Input
-                style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
-                placeholder="請輸入密碼"
-                placeholderTextColor={Colors.placeholderTColor}
-                value={passwordValue}
-                onChangeText={setPasswordValue}
-                onFocus={() => setFocusedInput(INPUT_FIELD.passwordValue)}
-                onBlur={() => {
-                  if (isShowErrorPassword) setFocusedInput(null)
-                  handlePasswordBlur()
-                }}
-                secureTextEntry={true}
-              />
-            </Item>
-            <Spacer size={4} flex={0} />
-            {isShowErrorPassword && (
-              <Text style={[componentProps.errorMsg, { color: Colors.redText }]}>8~20碼, 只能是英數或_</Text>
-            )}
-            <Spacer size={20} flex={0} />
-            <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.twoPasswordValue}>
-              <AntDesign name="lock" size={iconSize} color={Colors.mainColor} style={{ marginLeft: 16 }} />
-              <Input
-                style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
-                placeholder="請再次輸入密碼"
-                placeholderTextColor={Colors.placeholderTColor}
-                value={twoPasswordValue}
-                onChangeText={setTwoPasswordValue}
-                onFocus={() => setFocusedInput(INPUT_FIELD.twoPasswordValue)}
-                onBlur={() => setFocusedInput(null)}
-                secureTextEntry={true}
-              />
-            </Item>
-            <Spacer size={24} flex={0} />
-            <Item style={styles.itemStyle} focus={focusedInput === INPUT_FIELD.introducCode}>
-              <AntDesign
-                name="addusergroup"
-                size={iconSize}
-                color={Colors.mainColor}
-                style={{ marginLeft: 16 }}
-              />
-              <Input
-                style={{ marginLeft: componentProps.mediumPadding, color: Colors.mainColor }}
-                placeholder="請輸入推薦碼"
-                placeholderTextColor={Colors.placeholderTColor}
-                value={introducCode}
-                onChangeText={setIntroducCode}
-                onFocus={() => setFocusedInput(INPUT_FIELD.introducCode)}
-                onBlur={() => setFocusedInput(null)}
-              />
-            </Item>
-            <Spacer size={4} flex={0} />
-            {isShowErrorIntroducCode && (
-              <Text style={[componentProps.errorMsg, { color: Colors.redText }]}>推薦碼為必填欄位</Text>
-            )}
-            <Spacer size={24} flex={0} />
-            <View>
-              <CheckBox
-                onClick={() => setIsCheckedOne(!isCheckedOne)}
-                isChecked={isCheckedOne}
-                rightText={'我已閱讀並同意 隱私權政策 及 用戶聲明書'}
-                rightTextStyle={[componentProps.fontBodySmall6, { color: Colors.mainColor }]}
-                checkBoxColor={Colors.brandPrimary}
-              />
-              <Spacer size={22} />
-            </View>
-            <Button
-              full
-              disabled={!activeSubmit}
-              style={{
-                borderRadius: componentProps.borderRadius,
-                borderColor: Colors.mainColor,
-                borderWidth: 1,
-                //backgroundColor: Colors.brandPrimary,
-              }}
-              onPress={handleSubmit}
-            >
-              <Text
-                style={[componentProps.fontBodySmall, { color: activeSubmit ? 'white' : Colors.brandText }]}
+                onPress={handleSubmit}
               >
-                註冊
-              </Text>
-            </Button>
-            <Spacer size={24} flex={0} />
-            <Pressable style={{ paddingVertical: 8 }} onPress={() => navigation.goBack()}>
-              <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                <Text style={[componentProps.fontBodySmall, { color: Colors.mainColor }]}>已有帳號，去 </Text>
                 <Text
-                  style={[
-                    componentProps.fontBodySmall,
-                    { color: 'white', backgroundColor: Colors.mainColor },
-                  ]}
+                  style={[componentProps.fontBodySmall, { color: activeSubmit ? 'white' : Colors.brandText }]}
                 >
-                  登入
+                  註冊
                 </Text>
-                <Text style={[componentProps.fontBodySmall, { color: Colors.mainColor }]}> !</Text>
-              </View>
-            </Pressable>
-            <Spacer size={100} flex={0} />
-          </ScrollView>
-          <Spinner visible={isWaiting} color={Colors.mainColor} />
-        </View>
-      </TouchableWithoutFeedback>
+              </Button>
+              <Spacer size={24} flex={0} />
+              <Pressable style={{ paddingVertical: 8 }} onPress={() => navigation.goBack()}>
+                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                  <Text style={[componentProps.fontBodySmall, { color: Colors.mainColor }]}>已有帳號，去 </Text>
+                  <Text
+                    style={[
+                      componentProps.fontBodySmall,
+                      { color: 'white', backgroundColor: Colors.mainColor },
+                    ]}
+                  >
+                    登入
+                  </Text>
+                  <Text style={[componentProps.fontBodySmall, { color: Colors.mainColor }]}> !</Text>
+                </View>
+              </Pressable>
+              <Spacer size={100} flex={0} />
+            </ScrollView>
+            <Spinner visible={isWaiting} color={Colors.mainColor} />
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Container>
   )
 }

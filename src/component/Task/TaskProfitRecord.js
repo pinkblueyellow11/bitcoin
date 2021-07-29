@@ -30,10 +30,14 @@ const initialLayout = { width: Dimensions.get('window').width }
 
 export default function TaskProfitRecord(props) {
   const { historyArrayList, isWaiting, errorMsg, setErrorMsg } = props
+  const [historyArray, setHistoryArray] = useState(null)
   const navigation = useNavigation()
 
-
-  const handleRegister = async () => { }
+  useEffect(() => {
+    if (!Array.isArray(historyArrayList)) return
+    const historyArrayListFilter = historyArrayList.filter((item) => parseFloat(item?.profit) !== 0)
+    setHistoryArray(historyArrayListFilter)
+  }, [historyArrayList])
 
   return (
     <Container>
@@ -55,12 +59,12 @@ export default function TaskProfitRecord(props) {
       </View>
       <Spacer size={16} flex={0} />
       <ScrollView style={[{ paddingHorizontal: componentProps.defaultPadding }]}>
-        {Array.isArray(historyArrayList) && historyArrayList.length !== 0 && historyArrayList.map((item, index) => {
+        {Array.isArray(historyArray) && historyArray.length !== 0 && historyArray.map((item, index) => {
           return (
             <>
               <View key={`${item.date}-${item.profit}`} style={styles.rowList}>
-                <Text >{item.date}</Text>
-                <Text>{parseFloat(parseFloat(item?.profit).toFixed(4))}</Text>
+                <Text style={{ fontWeight: '500' }}>{item.date}</Text>
+                <Text style={{ color: 'green' }}>{parseFloat(parseFloat(item?.profit).toFixed(4))}</Text>
               </View>
               <View style={styles.rowLine} />
             </>

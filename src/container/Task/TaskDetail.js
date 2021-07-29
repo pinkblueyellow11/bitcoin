@@ -8,7 +8,7 @@ import Constants from 'expo-constants'
 
 export default function LoginContainer(props) {
   const { } = props
-  const { id, profitAndLossPeasant, currentPrice, totalProfit } = props.route.params
+  const { id, profitAndLossPeasant, currentPrice, totalProfit, robotArray } = props.route.params
   const [taskDetail, setTaskDetail] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
@@ -23,7 +23,8 @@ export default function LoginContainer(props) {
       const result = await agent.bot.getRobotDetail(params)
       setIsWaiting(false)
       const index = result.data.length - 1
-      setTaskDetail(result.data[index])
+      console.log('getRobotDetail result', result)
+      setTaskDetail(result.data[0])
       setRefreshBot(true)
     } catch (error) {
       console.log('[container/Task/TaskDetail] getRobotDetail error', error)
@@ -78,12 +79,28 @@ export default function LoginContainer(props) {
     }
   }
 
+  const deleteRobots = async (id) => {
+    setIsWaiting(true)
+    try {
+      const result = await agent.bot.deleteRobots(id)
+      setIsWaiting(false)
+      setRefreshBot(true)
+      console.log('deleteRobots result', result)
+      return true
+    } catch (error) {
+      console.log('[container/Task/TaskDetail] deleteRobots error', error)
+      setErrorMsg(error.status === 422 ? '系統錯誤' : ERROR_STATUS[error.status])
+      setIsWaiting(false)
+      return error
+    }
+  }
+
   useEffect(() => {
     console.log('id', id)
     if (id) getRobotDetail(id)
   }, [id])
 
   return (
-    <TaskDetail botRepeat={botRepeat} getRobotDetail={getRobotDetail} outOfWarehouse={outOfWarehouse} closeRobot={closeRobot} taskDetail={taskDetail} profitAndLossPeasant={profitAndLossPeasant} currentPrice={currentPrice} totalProfit={totalProfit} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} setIsWaiting={setIsWaiting} />
+    <TaskDetail robotArray={robotArray} deleteRobots={deleteRobots} botRepeat={botRepeat} getRobotDetail={getRobotDetail} outOfWarehouse={outOfWarehouse} closeRobot={closeRobot} taskDetail={taskDetail} profitAndLossPeasant={profitAndLossPeasant} currentPrice={currentPrice} totalProfit={totalProfit} setErrorMsg={setErrorMsg} errorMsg={errorMsg} isWaiting={isWaiting} setIsWaiting={setIsWaiting} />
   )
 }

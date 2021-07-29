@@ -76,8 +76,8 @@ const bot = {
   getProfitDaily: (params) => {
     return axios.get('/user/profit/daily', { params })
   },
-  getBonusOrder: () => {
-    return axios.get('/bonus/orders')
+  getBonusSurplus: () => {
+    return axios.get('/bonus/surplus')
   },
   getBonusDetail: () => {
     return axios.get('bonus/details')
@@ -88,6 +88,28 @@ const bot = {
   getProfitGroup: () => {
     return axios.get('/user/profit/group')
   },
+  getProfitGroupThisMonth: () => {
+    return axios.get('/user/profit/group/current-month')
+  },
+  getProfitGroupLastMonth: () => {
+    return axios.get('/user/profit/group/last-month')
+  },
+  getGroupRobotsTrans: (group_robot_id) => {
+    return axios.post('/user/robots/group/' + group_robot_id + '/trans-history')
+  },
+  deleteRobots: (group_robot_id) => {
+    return axios.delete('/user/robots/group/' + group_robot_id)
+  },
+  transformFuelCost: (body) => {
+    return axios.post('/bonus/transform-fuel-cost', body)
+  },
+  bonusApplyWithdrawal: (body) => {
+    return axios.post('/bonus/apply-withdrawal', body)
+  },
+  getBonusRecord: () => {
+    return axios.get('/bonus/records')
+  },
+
 }
 
 const Account = {

@@ -33,9 +33,10 @@ import Carousel from 'react-native-snap-carousel'
 import { Ionicons, AntDesign, Feather, MaterialIcons } from '@expo/vector-icons'
 
 const initialLayout = { width: Dimensions.get('window').width }
+const SUCCESS_CODE = 200
 
 function TaskDetail(props) {
-  const { botRepeat, getRobotDetail, taskDetail, closeRobot, outOfWarehouse, profitAndLossPeasant, currentPrice, totalProfit, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
+  const { robotArray, deleteRobots, botRepeat, getRobotDetail, taskDetail, closeRobot, outOfWarehouse, profitAndLossPeasant, currentPrice, totalProfit, errorMsg, setErrorMsg, isWaiting, setIsWaiting } = props
   const navigation = useNavigation()
 
   const [coinType, setCoinType] = useState('')
@@ -57,7 +58,46 @@ function TaskDetail(props) {
     setProfitAndLossInfo(profitAndLoss)
   }, [taskDetail])
 
-  const handleSubmit = async () => { }
+  const handleDelete = () => {
+    console.log('taskDetail?.enabled', !taskDetail?.enabled)
+    if (!!taskDetail?.enabled) {
+      Alert.alert('不可刪除開啟中的任務', '', [
+        {
+          text: '確定',
+          onPress: () => { },
+        },
+      ])
+      return
+    }
+    if (taskDetail?.robot_trans_info?.purchase_count > 0) {
+      Alert.alert('此任務持倉單數大於0，是否確定刪除？', '', [
+        {
+          text: '確定',
+          onPress: () => { deleteTask() },
+        },
+        {
+          text: '取消',
+          onPress: () => { },
+        },
+      ])
+      return
+    }
+    Alert.alert('是否要刪除任務？', '', [
+      {
+        text: '確定',
+        onPress: () => { deleteTask() },
+      },
+      {
+        text: '取消',
+        onPress: () => { },
+      },
+    ])
+  }
+
+  const deleteTask = async () => {
+    const result = await deleteRobots(taskDetail.robot_id)
+    if (result) navigation.goBack()
+  }
 
   const handleCloseRobot = async () => {
     const body = {
@@ -116,7 +156,7 @@ function TaskDetail(props) {
           <Text style={{ color: Colors.mainColor, alignSelf: 'center' }}>{coinType}/USDT 詳情</Text>
         </Body>
         <Right>
-          <Pressable onPress={() => navigation.navigate(screenName.TaskRecord)}>
+          <Pressable onPress={() => navigation.navigate(screenName.TaskRecord, { groupRobotId: taskDetail?.group_robot_id, robotArray })}>
             <Text style={{ color: Colors.mainColor }}>交易紀錄</Text>
           </Pressable>
         </Right>
@@ -222,7 +262,7 @@ function TaskDetail(props) {
             <View style={styles.litBoxRow}>
               <Text style={styles.listBoxTitle}>總盈利</Text>
               <Text style={[styles.listNumber, { color: Colors.redText }]}>
-                {totalProfit && <Text style={{ color: parseFloat(taskDetail?.profit) > 0 ? 'green' : 'red' }}>{parseFloat(totalProfit)}</Text>}
+                {totalProfit && <Text style={{ color: parseFloat(totalProfit) > 0 ? 'green' : 'red' }}>{parseFloat(totalProfit)}</Text>}
               </Text>
             </View>
             <View style={styles.litBoxRow}>
@@ -291,7 +331,7 @@ function TaskDetail(props) {
             <Pressable style={styles.circleButton} onPress={handleBotRepeat}>
               <AntDesign name="edit" size={24} color="white" />
             </Pressable>
-            <Text style={styles.circleButtonText}>{taskDetail.auto_repeat ? '關閉' : '開啟'}機器人自動循環</Text>
+            <Text style={styles.circleButtonText, { color: taskDetail.auto_repeat ? 'green' : 'red', marginTop: 8 }}>{taskDetail.auto_repeat ? '關閉' : '開啟'}機器人自動循環</Text>
           </View>}
           <View style={{ marginRight: 24, alignItems: 'center' }}>
             <Pressable style={styles.circleButton} onPress={() => { }}>
@@ -320,7 +360,7 @@ function TaskDetail(props) {
             borderWidth: 2,
             paddingVertical: 16,
           }}
-          onPress={handleSubmit}
+          onPress={handleDelete}
         >
           <Text style={[componentProps.fontH5Medium, { color: Colors.redText, textAlign: 'center' }]}>
             刪除任務
@@ -406,7 +446,7 @@ const styles = StyleSheet.create({
   },
   circleButtonText: {
     ...componentProps.fontBody1Medium,
-    color: '#A298AE',
+    //color: '#A298AE',
     textAlign: 'center',
     marginTop: 4,
   },
